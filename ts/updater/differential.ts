@@ -210,9 +210,10 @@ export async function prepareDownload({
     await readFile(getBlockMapFileName(oldFile))
   );
 
+  const targetUrl = getBlockMapFileName(newUrl);
   const newBlockMapData = await got(
-    getBlockMapFileName(newUrl),
-    getGotOptions()
+    targetUrl,
+    getGotOptions(targetUrl)
   ).buffer();
 
   const newBlockMap = await parseBlockMap(newBlockMapData);
@@ -343,7 +344,7 @@ export async function downloadRanges(
     logger,
     abortSignal,
     chunkStatusCallback,
-    gotOptions = getGotOptions(),
+    gotOptions = getGotOptions(url),
   } = options;
 
   logger?.info('updater/downloadRanges: downloading ranges', ranges.length);

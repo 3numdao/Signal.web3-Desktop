@@ -1,0 +1,11 @@
+name = "releases"
+main = "src/index.ts"
+compatibility_date = "2022-06-10"
+
+account_id = "de4b9bc87b7091e05993555f58443f2f"
+workers_dev = true
+
+[[r2_buckets]]
+binding = 'RELEASES_BUCKET'
+bucket_name = 'releases'
+preview_bucket_name = 'releases-dev'

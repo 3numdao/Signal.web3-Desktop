@@ -2412,6 +2412,30 @@
       }
     }
   },
+  "startConversation--phone-number-record-not-found": {
+    "message": "User not found. \"$etherName$\" ($etherAddress$) has not created a phone record.",
+    "description": "Shown in dialog if phone number record was not found via a translation lookup.",
+    "placeholders": {
+      "etherName": {
+        "content": "$1",
+        "example": "alice.eth"
+      },
+      "etherAddress": {
+        "content": "$1",
+        "example": "0xaaaaa11111bbbbb22222ccccc33333ddddd44444"
+      }
+    }
+  },
+  "startConversation--phone-number-record-unregistered": {
+    "message": "User not found. \"$etherName$\" has not completed their ENS registration.",
+    "description": "Shown in dialog if the name was not found registered with ENS.",
+    "placeholders": {
+      "etherName": {
+        "content": "$1",
+        "example": "alice.eth"
+      }
+    }
+  },
   "chooseGroupMembers__title": {
     "message": "Choose members",
     "description": "The title for the 'choose group members' left pane screen"

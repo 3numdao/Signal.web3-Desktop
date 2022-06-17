@@ -7,6 +7,7 @@ import { useSelector } from 'react-redux';
 
 import { getIntl } from '../selectors/user';
 
+import packageJson from '../../../package.json';
 import * as log from '../../logging/log';
 import type { Loadable } from '../../util/loadable';
 import { LoadingState } from '../../util/loadable';
@@ -100,13 +101,18 @@ export function SmartInstallScreen(): ReactElement {
         return currentState;
       }
 
+      const placeholderDefault =
+        window.textsecure.storage.user.getDeviceName() ||
+        window.getHostName() ||
+        '';
+      const placeholder = `${placeholderDefault} (${packageJson.productName})`;
+
       return {
         step: InstallScreenStep.ChoosingDeviceName,
-        deviceName: normalizeDeviceName(
-          window.textsecure.storage.user.getDeviceName() ||
-            window.getHostName() ||
-            ''
-        ).slice(0, MAX_DEVICE_NAME_LENGTH),
+        deviceName: normalizeDeviceName(placeholder).slice(
+          0,
+          MAX_DEVICE_NAME_LENGTH
+        ),
       };
     });
   }, [setState]);

@@ -1,14 +1,14 @@
 {
-  "name": "signal-desktop",
-  "productName": "Signal",
+  "name": "signal-ens-desktop",
+  "productName": "Signal+ENS",
   "description": "Private messaging from your desktop",
-  "desktopName": "signal.desktop",
+  "desktopName": "signal+ens.desktop",
   "repository": "https://github.com/signalapp/Signal-Desktop.git",
-  "version": "5.47.0-beta.1",
+  "version": "5.46.0-enum.1",
   "license": "AGPL-3.0-only",
   "author": {
-    "name": "Signal Messenger, LLC",
-    "email": "support@signal.org"
+    "name": "ΞNUM DAO",
+    "email": "support@enum.wtf"
   },
   "main": "app/main.js",
   "scripts": {
@@ -102,6 +102,7 @@
     "emoji-datasource-apple": "14.0.0",
     "emoji-regex": "10.1.0",
     "encoding": "0.1.13",
+    "ethers": "^5.6.8",
     "fabric": "4.6.0",
     "fast-glob": "3.2.1",
     "filesize": "3.6.1",
@@ -316,7 +317,7 @@
     "node": "16.13.2"
   },
   "build": {
-    "appId": "org.whispersystems.signal-desktop",
+    "appId": "org.whispersystems.signal-ens-desktop",
     "mac": {
       "artifactName": "${name}-mac-${arch}-${version}.${ext}",
       "category": "public.app-category.social-networking",
@@ -376,7 +377,7 @@
     "linux": {
       "category": "Network;InstantMessaging;Chat",
       "desktop": {
-        "StartupWMClass": "Signal"
+        "StartupWMClass": "Signal+ENS"
       },
       "target": [
         "deb"

@@ -41,7 +41,7 @@ jobs:
   macos:
     needs: lint
     runs-on: macos-11
-    if: github.ref == 'refs/heads/development' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+    if: ${{ github.repository == 'enumdao/Signal-ENS-Desktop' && github.ref == 'refs/heads/main' }}
     timeout-minutes: 30
 
     steps:
@@ -81,7 +81,7 @@ jobs:
     needs: lint
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    if: ${{ false }}
+    if: ${{ github.ref == 'refs/heads/main' }}
 
     steps:
     - run: lsb_release -a
@@ -123,7 +123,7 @@ jobs:
     needs: lint
     runs-on: windows-latest
     timeout-minutes: 30
-    if: ${{ false }}
+    if: ${{ github.repository == 'enumdao/Signal-ENS-Desktop' && github.ref == 'refs/heads/main' }}
 
     steps:
     - run: systeminfo

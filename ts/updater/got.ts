@@ -60,9 +60,11 @@ export function getGotOptions(url: string): GotOptions {
     },
   };
 
-  const targetUrl = new URL(url);
-  if (targetUrl.hostname.endsWith('.signal.org')) {
-    opts.https = { certificateAuthority: getCertificateAuthority() };
+  if (url.startsWith('http')) {
+    const targetUrl = new URL(url);
+    if (targetUrl.hostname.endsWith('.signal.org')) {
+      opts.https = { certificateAuthority: getCertificateAuthority() };
+    }
   }
 
   return opts;

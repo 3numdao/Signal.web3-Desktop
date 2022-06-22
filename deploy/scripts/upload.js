@@ -122,7 +122,7 @@ async function main() {
   });
 
   for (const filePath of uploads) {
-    let key = path.basename(filePath);
+    let key = `desktop/${path.basename(filePath)}`;
     if (fakeVersion) {
       key = key.replace(version, fakeVersion);
     }
@@ -130,7 +130,8 @@ async function main() {
     if (args['--dry']) {
       out('DRY upload:', filePath, '\n         =>', bucketName, key);
     } else {
-      upload(filePath, s3, bucketName, key);
+      // eslint-disable-next-line no-await-in-loop
+      await upload(filePath, s3, bucketName, key);
     }
   }
 }
@@ -162,7 +163,7 @@ async function upload(filePath, s3, bucket, key) {
       Body: fs.createReadStream(filePath),
     })
     .promise();
-  out('     =>', resp.Location);
+  out('     =>', resp.Key, resp.ETag);
 }
 
 /**

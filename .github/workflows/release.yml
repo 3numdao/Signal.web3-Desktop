@@ -80,7 +80,6 @@ jobs:
           Set-Content -Path certificate\certificate.pem -Value '${{ secrets.WIN_ENUM_SIGN_CERT }}'
           certutil -decode certificate\certificate.pem certificate\certificate.pfx
           certutil -user -p '${{ secrets.WIN_ENUM_SIGN_CERT_PASSWORD }}' -importPFX certificate\certificate.pfx
-          Get-ChildItem -path cert:\CurrentUser\My
 
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2

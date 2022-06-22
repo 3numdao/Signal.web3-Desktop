@@ -37,6 +37,7 @@ jobs:
             release_suffix: windows
 
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
 
     steps:
       - name: Install Apple certificates
@@ -98,6 +99,9 @@ jobs:
           DISABLE_INSPECT_FUSE: on
 
       - name: Upload binaries for deployment
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           cd deploy
           yarn install

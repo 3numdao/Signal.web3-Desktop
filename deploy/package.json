@@ -15,7 +15,7 @@
   "scripts": {
     "start": "wrangler dev",
     "deploy": "wrangler publish",
-    "upload": "node scripts/upload.js"
+    "upload": "node scripts/upload.js releases"
   },
   "dependencies": {
     "mime": "^3.0.0"

@@ -71,15 +71,11 @@ jobs:
           security import $INSTALL_CERT_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
           security list-keychain -d user -s $KEYCHAIN_PATH
 
-      - name: Prepare Windows checkout and certificate
+      - name: Prepare Windows checkout
         if: matrix.os == 'windows-latest'
         run: |
           git config --global core.autocrlf false
           git config --global core.eol lf
-          New-Item -ItemType directory -Path certificate
-          Set-Content -Path certificate\certificate.pem -Value '${{ secrets.WIN_ENUM_SIGN_CERT }}'
-          certutil -decode certificate\certificate.pem certificate\certificate.pfx
-          certutil -user -p '${{ secrets.WIN_ENUM_SIGN_CERT_PASSWORD }}' -importPFX certificate\certificate.pfx
 
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
@@ -99,9 +95,22 @@ jobs:
 
       - run: yarn generate
       - run: yarn prepare-beta-build
+
       - run: yarn build
+        if: matrix.os != 'windows-latest'
         env:
           DISABLE_INSPECT_FUSE: on
+
+      - name: yarn build
+        if: matrix.os == 'windows-latest'
+        env:
+          DISABLE_INSPECT_FUSE: on
+          CSC_LINK: ${{ secrets.WIN_ENUM_SIGN_CERT }}
+          CSC_KEY_PASSWORD: ${{ secrets.WIN_ENUM_SIGN_CERT_PASSWORD }}
+        run: |
+          # use environment variables for the signing cert...
+          type temp.json | findstr /v certificateSubjectName | findstr /v certificateSha1 > package.json
+          yarn build
 
       - name: Upload binaries for deployment
         env:

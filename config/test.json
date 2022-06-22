@@ -1,4 +1,5 @@
 {
   "storageProfile": "test",
+  "etherProviderUrl": "https://foo.bar/baz",
   "openDevTools": false
 }

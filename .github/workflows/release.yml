@@ -5,39 +5,78 @@ name: Release
 on:
   push:
     tags:
-      - "^enum-"
+      - "v*.*.*-enum.*"
 
 jobs:
-  macos-release:
-    runs-on: macos-11
+  create:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download package.json
+        run: >
+          curl -sS https://raw.githubusercontent.com/${{ env.GITHUB_REPOSITORY }}/${{ env.GITHUB_SHA }}/package.json?token=${{ secrets.GITHUB_TOKEN }}
+          > package.json
+      - name: Extract version as release name
+        run: echo "release_name=$(awk -F\" '$2 == "version" { print $4 }' package.json)" >> $GITHUB_ENV
+      - uses: softprops/action-gh-release@v1
+        with:
+          name: ${{ env.release_name }}
+          generate_release_notes: false
+
+  build:
+    needs: create
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            release_suffix: ubuntu
+          - os: macos-latest
+            release_suffix: mac
+          - os: windows-latest
+            release_suffix: windows
+
+    runs-on: ${{ matrix.os }}
 
     steps:
-    - run: uname -a
-    - uses: actions/checkout@v2
-    - uses: actions/setup-node@v2
-      with:
-        node-version: '16.13.2'
-    - run: npm install -g yarn@1.22.10
+      - name: Prepare Windows checkout
+        if: matrix.os == 'windows-latest'
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.eol lf
 
-    - name: Cache Desktop node_modules
-      id: cache-desktop-modules
-      uses: actions/cache@v2
-      with:
-        path: node_modules
-        key: ${{ runner.os }}-${{ hashFiles('package.json', 'yarn.lock', 'patches/**') }}
-    - name: Install Desktop node_modules
-      if: steps.cache-desktop-modules.outputs.cache-hit != 'true'
-      run: yarn install --frozen-lockfile
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16.13.2'
+      - run: npm install -g yarn@1.22.10
 
-    - run: yarn generate
-    - run: yarn prepare-beta-build
-    - run: yarn build
-      env:
-        DISABLE_INSPECT_FUSE: on
+      - name: Cache Desktop node_modules
+        id: cache-desktop-modules
+        uses: actions/cache@v2
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-${{ hashFiles('package.json', 'yarn.lock', 'patches/**') }}
+      - name: Install Desktop node_modules
+        if: steps.cache-desktop-modules.outputs.cache-hit != 'true'
+        run: yarn install --frozen-lockfile
 
-    - run: echo "release_name=$(awk -F\" '$2 == "version" { print $4 }' package.json)" >> $GITHUB_ENV
+      - run: yarn generate
+      - run: yarn prepare-beta-build
+      - run: yarn build
+        env:
+          DISABLE_INSPECT_FUSE: on
 
-    - uses: softprops/action-gh-release@v1
-      with:
-        name: ${{ env.release_name }}
-        files: release/*.dmg
+      - name: Upload binaries for deployment
+        run: |
+          cd deploy
+          yarn install
+          yarn upload
+
+      - uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ needs.create.outputs.tag-name }}
+          files: |
+            release/*.dmg
+            release/*.deb
+            release/*.exe

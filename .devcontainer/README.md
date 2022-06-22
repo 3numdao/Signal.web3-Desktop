@@ -37,9 +37,20 @@ To enable ENS phone record lookups, place a new key in the `~/.config/Signal.ali
 
 ## building macos
 
+* install xcode (and command line tools)
 * yarn build will not work over ssh!!
     * needs access to running display, etc. for something
     * just dev'ing w/ yarn generate && yarn build:webpack work fine, tho
+
+## building windows
+
+* install [nvm-windows](https://github.com/coreybutler/nvm-windows)
+    * nvm install 16.13.2
+    * do NOT install build tools per contributing docs! they install an old python
+    * install python3
+    * install visual studio
+        * be sure to include C++ build support!
+    * setting envvar for pointing to config: `$env:NODE_APP_INSTANCE = 'win10'`
 
 ## signing
 

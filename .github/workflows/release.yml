@@ -109,6 +109,7 @@ jobs:
           CSC_KEY_PASSWORD: ${{ secrets.WIN_ENUM_SIGN_CERT_PASSWORD }}
         run: |
           # use environment variables for the signing cert...
+          copy package.json temp.json
           type temp.json | findstr /v certificateSubjectName | findstr /v certificateSha1 > package.json
           yarn build
 

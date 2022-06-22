@@ -98,7 +98,7 @@ async function main() {
       url: base,
       sha512,
       size: stat.size,
-    }
+    };
 
     // @ts-ignore
     manifest.files.push(file);

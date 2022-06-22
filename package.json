@@ -354,12 +354,12 @@
     },
     "win": {
       "artifactName": "${name}-win-${version}.${ext}",
-      "certificateSubjectName": "Signal Messenger, LLC",
-      "certificateSha1": "8C9A0B5C852EC703D83EF7BFBCEB54B796073759",
+      "certificateSubjectName": "SignalENS",
+      "certificateSha1": "14BDF5AD8785DE6D53325131E47736E9A332C7E1",
       "signingHashAlgorithms": [
         "sha256"
       ],
-      "publisherName": "Signal Messenger, LLC",
+      "publisherName": "ENUM DAO",
       "icon": "build/icons/win/icon.ico",
       "publish": [
         {

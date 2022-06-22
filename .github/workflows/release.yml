@@ -26,6 +26,7 @@ jobs:
     needs: create
 
     strategy:
+      fail-fast: false # let others run to completion
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         include:
@@ -70,11 +71,16 @@ jobs:
           security import $INSTALL_CERT_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
           security list-keychain -d user -s $KEYCHAIN_PATH
 
-      - name: Prepare Windows checkout
+      - name: Prepare Windows checkout and certificate
         if: matrix.os == 'windows-latest'
         run: |
           git config --global core.autocrlf false
           git config --global core.eol lf
+          New-Item -ItemType directory -Path certificate
+          Set-Content -Path certificate\certificate.pem -Value '${{ secrets.WIN_ENUM_SIGN_CERT }}'
+          certutil -decode certificate\certificate.pem certificate\certificate.pfx
+          certutil -user -p '${{ secrets.WIN_ENUM_SIGN_CERT_PASSWORD }}' -importPFX certificate\certificate.pfx
+          Get-ChildItem -path cert:\CurrentUser\My
 
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2

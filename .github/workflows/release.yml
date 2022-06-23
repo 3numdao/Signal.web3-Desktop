@@ -48,9 +48,6 @@ jobs:
           INSTALL_CERT_BASE64: ${{ secrets.INSTALL_CERT_BASE64 }}
           P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-          APPLE_USERNAME: ${{ secrets.APPLE_USERNAME }}
-          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
           # create variables
           APP_CERT_PATH=$RUNNER_TEMP/app_cert.p12
@@ -96,23 +93,25 @@ jobs:
       - run: yarn generate
       - run: yarn prepare-beta-build
 
-      - run: yarn build
+      - run: yarn build (non-windows)
         if: matrix.os != 'windows-latest'
         env:
           DISABLE_INSPECT_FUSE: on
+          APPLE_USERNAME: ${{ secrets.APPLE_USERNAME }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
 
-      - name: yarn build
+      - name: Run yarn build (windows)
         if: matrix.os == 'windows-latest'
         env:
           DISABLE_INSPECT_FUSE: on
           CSC_LINK: ${{ secrets.CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-        run: |
-          # use environment variables for the signing cert...
-          copy package.json temp.json
-          del package.json
-          type temp.json | findstr /v certificateSubjectName | findstr /v certificateSha1 > package.json
-          yarn build
+        run: yarn build
+
+      - run: yarn sign-release
+        env:
+          UPDATES_PRIVATE_KEY: ${{ secrets.UPDATES_PRIVATE_KEY }}
 
       - name: Upload binaries for deployment
         env:

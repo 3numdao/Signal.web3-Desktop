@@ -354,8 +354,6 @@
     },
     "win": {
       "artifactName": "${name}-win-${version}.${ext}",
-      "certificateSubjectName": "SignalENS",
-      "certificateSha1": "14BDF5AD8785DE6D53325131E47736E9A332C7E1",
       "signingHashAlgorithms": [
         "sha256"
       ],

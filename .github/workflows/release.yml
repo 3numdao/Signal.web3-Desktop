@@ -93,7 +93,8 @@ jobs:
       - run: yarn generate
       - run: yarn prepare-beta-build
 
-      - run: yarn build (non-windows)
+      - name: Run yarn build (non-windows)
+        run: yarn build
         if: matrix.os != 'windows-latest'
         env:
           DISABLE_INSPECT_FUSE: on

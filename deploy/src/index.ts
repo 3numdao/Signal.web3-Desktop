@@ -13,6 +13,19 @@ type PathElements = {
   ext: string;
 };
 
+type ManifestFile = {
+  url: string;
+  sha512: string;
+  size: number;
+};
+
+type Manifest = {
+  version: string;
+  files: ManifestFile[];
+  path: string;
+  sha512: string;
+};
+
 const ALLOW_LIST = [
   '^static/',
   '^desktop/[^/]+.yml$',
@@ -96,7 +109,7 @@ async function getReleasesKey(env: Env, key: string): Promise<string> {
   const ext = getExt(key);
   const cachedKey = await env.LATEST_CACHE.get(ext);
   if (cachedKey) {
-    console.log('returning', cachedKey, '(cached)')
+    console.log('returning', cachedKey, '(cached)');
     return cachedKey;
   }
 
@@ -123,11 +136,23 @@ async function getReleasesKey(env: Env, key: string): Promise<string> {
     return key;
   }
 
-  type Manifest = { path: string }; // don't care about any of the other keys
   const body = await manifestObj.text();
   const manifest: Manifest = yaml.load(body);
 
-  const latestKey = `${elements.dir}/${manifest.path}`;
+  const latestUrl = elements.base.replace('latest', manifest.version);
+  let latestKey: string = '';
+  for (const mf of manifest.files) {
+    if (mf.url == latestUrl) {
+      latestKey = `${elements.dir}/${mf.url}`;
+      break;
+    }
+  }
+
+  if (!latestKey) {
+    console.error(`unable to find match for ${key} in`, manifest);
+    return key;
+  }
+
   await env.LATEST_CACHE.put(ext, latestKey, {
     expirationTtl: env.LATEST_CACHE_TTL || 300,
   });

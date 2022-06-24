@@ -1,6 +1,9 @@
 // Copyright 2017-2022 Signal Messenger, LLC
 // SPDX-License-Identifier: AGPL-3.0-only
 
+// This has to be the first import because it patches "os" module
+import '../ts/util/patchWindows7Hostname';
+
 import { join, normalize } from 'path';
 import { pathToFileURL } from 'url';
 import * as os from 'os';
@@ -620,8 +623,10 @@ async function getTitleBarOverlay(): Promise<TitleBarOverlayOptions | false> {
     color = '#e8e8e8';
     symbolColor = '#1b1b1b';
   } else if (theme === 'dark') {
-    color = '#24292e';
-    symbolColor = '#fff';
+    // $color-gray-80
+    color = '#2e2e2e';
+    // $color-gray-05
+    symbolColor = '#e9e9e9';
   } else {
     throw missingCaseError(theme);
   }
@@ -630,9 +635,8 @@ async function getTitleBarOverlay(): Promise<TitleBarOverlayOptions | false> {
     color,
     symbolColor,
 
-    // Should match stylesheets/components/TitleBarContainer.scss minus the
-    // border
-    height: (OS.isWindows11() ? 29 : 28) - 1,
+    // Should match stylesheets/components/TitleBarContainer.scss
+    height: 28,
   };
 }
 

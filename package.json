@@ -4,7 +4,7 @@
   "description": "Private messaging from your desktop",
   "desktopName": "signal+ens.desktop",
   "repository": "https://github.com/signalapp/Signal-Desktop.git",
-  "version": "5.46.0-enum.2",
+  "version": "5.47.0-enum.1",
   "license": "AGPL-3.0-only",
   "author": {
     "name": "ΞNUM DAO",
@@ -77,7 +77,7 @@
     "fs-xattr": "0.3.0"
   },
   "dependencies": {
-    "@indutny/frameless-titlebar": "2.2.0",
+    "@indutny/frameless-titlebar": "2.3.1",
     "@popperjs/core": "2.9.2",
     "@react-spring/web": "9.4.5",
     "@signalapp/libsignal-client": "0.17.0",
@@ -166,7 +166,7 @@
     "redux-ts-utils": "3.2.2",
     "reselect": "4.1.2",
     "rimraf": "2.6.2",
-    "ringrtc": "https://github.com/signalapp/signal-ringrtc-node.git#ebd88d19b7a520f5887e5bed529db9fa5631d07e",
+    "ringrtc": "https://github.com/signalapp/signal-ringrtc-node.git#4450aa43e0f95e09e61cf49e970d864b19fa9d50",
     "rotating-file-stream": "2.1.5",
     "sanitize.css": "11.0.0",
     "semver": "5.4.1",
@@ -267,7 +267,7 @@
     "cross-env": "5.2.0",
     "css-loader": "3.2.0",
     "debug": "4.3.3",
-    "electron": "19.0.4",
+    "electron": "19.0.5",
     "electron-builder": "23.0.8",
     "electron-mocha": "11.0.2",
     "electron-notarize": "1.2.1",

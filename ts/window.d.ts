@@ -295,7 +295,6 @@ declare global {
     getTitle: () => string;
     waitForEmptyEventQueue: () => Promise<void>;
     getVersion: () => string;
-    getEtherProviderUrl: () => string | undefined;
     i18n: LocalizerType;
     isActive: () => boolean;
     isAfterVersion: (version: string, anotherVersion: string) => boolean;

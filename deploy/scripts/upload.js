@@ -1,4 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
+const process = require('node:process');
 const fs = require('node:fs');
 const path = require('node:path');
 

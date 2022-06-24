@@ -399,11 +399,6 @@ async function prepareUrl(
     );
   }
 
-  const etherProviderUrl = <string | undefined>(
-    (ephemeralConfig.get('ether-provider-url') ||
-      config.get<string | undefined>('etherProviderUrl'))
-  );
-
   const urlParams: RendererConfigType = {
     name: packageJson.productName,
     locale: getLocale().name,
@@ -413,7 +408,6 @@ async function prepareUrl(
     serverUrl: config.get<string>('serverUrl'),
     storageUrl: config.get<string>('storageUrl'),
     updatesUrl: config.get<string>('updatesUrl'),
-    etherProviderUrl,
     cdnUrl0: config.get<ConfigType>('cdn').get<string>('0'),
     cdnUrl2: config.get<ConfigType>('cdn').get<string>('2'),
     certificateAuthority: config.get<string>('certificateAuthority'),

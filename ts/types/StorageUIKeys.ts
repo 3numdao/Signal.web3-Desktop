@@ -18,7 +18,6 @@ export const STORAGE_UI_KEYS: ReadonlyArray<keyof StorageAccessType> = [
   'call-system-notification',
   'customColors',
   'defaultConversationColor',
-  'ether-provider-url',
   'hasAllStoriesMuted',
   'hide-menu-bar',
   'incoming-call-notification',

@@ -227,15 +227,6 @@ export async function startApp(): Promise<void> {
       server,
     });
 
-    const etherProviderUrl = window.getEtherProviderUrl();
-    if (etherProviderUrl) {
-      log.info('Using an ether provider:', etherProviderUrl);
-      window.storage.put('ether-provider-url', etherProviderUrl);
-    } else {
-      log.warn('startApp: ether-provider-url was not configured');
-      window.storage.remove('ether-provider-url');
-    }
-
     challengeHandler = new ChallengeHandler({
       storage: window.storage,
 

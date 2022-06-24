@@ -1020,10 +1020,6 @@ Signal Desktop makes use of the following open source projects.
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
 
-## ethers
-
-    License: MIT
-
 ## fabric
 
     Copyright (c) 2008-2015 Printio (Juriy Zaytsev, Maxim Chernyak)

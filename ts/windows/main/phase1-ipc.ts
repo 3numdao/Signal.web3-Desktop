@@ -62,7 +62,6 @@ window.getServerTrustRoot = () => config.serverTrustRoot;
 window.getServerPublicParams = () => config.serverPublicParams;
 window.getSfuUrl = () => config.sfuUrl;
 window.isBehindProxy = () => Boolean(config.proxyUrl);
-window.getEtherProviderUrl = () => config.etherProviderUrl;
 
 let title = config.name;
 if (getEnvironment() !== Environment.Production) {

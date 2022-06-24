@@ -1,8 +1,4 @@
-// Copyright 2022 Signal Messenger, LLC
-// SPDX-License-Identifier: AGPL-3.0-only
-
-import type { JsonRpcProvider } from '@ethersproject/providers/lib/json-rpc-provider';
-import { providers as etherProviders } from 'ethers';
+import got from 'got';
 import * as log from '../logging/log';
 import { parseNumber } from './libphonenumberUtil';
 
@@ -13,12 +9,17 @@ export type TranslateResult = {
   error?: string;
 };
 
+type LookupResult = {
+  name?: string;
+  phone?: string;
+  address?: string;
+  message?: string;
+};
+
 export function canTranslateNameToPhoneNumber(name: string): boolean {
-  if (getEtherProvider()) {
-    if (name.endsWith('.eth')) {
-      log.info('chainHelper.canTranslate:', name);
-      return true;
-    }
+  if (name.endsWith('.eth')) {
+    // log.info('chainHelper.canTranslate:', name);
+    return true;
   }
 
   return false;
@@ -28,55 +29,40 @@ export async function translateNameToPhoneNumber(
   name: string
 ): Promise<TranslateResult> {
   const result: TranslateResult = { name };
-  const etherProvider = getEtherProvider();
-  if (!etherProvider) {
-    result.error = 'no ether provider available';
-  } else {
-    const resolver = await etherProvider.getResolver(name);
-    if (!resolver) {
-      result.error = 'failed to get an ether resolver';
-    } else {
-      result.address = await resolver.getAddress();
-      let phoneRecord = await resolver.getText('phone');
-      if (!phoneRecord) phoneRecord = getFakeNumberFor(name);
-      const phoneNumber = cleanPhoneNumber(phoneRecord);
-      if (!phoneNumber) {
-        result.error = 'no phone record found';
-      } else {
-        result.phoneNumber = phoneNumber;
-      }
+
+  const lookupUrl = 'https://ethercache.herokuapp.com/lookup';
+  const resp = await got.get(lookupUrl, {
+    searchParams: { name },
+    timeout: { request: 10_000 },
+    throwHttpErrors: false,
+  });
+
+  const contentType = resp.headers['content-type'];
+  const contentLen = Number(resp.headers['content-length'] || '');
+
+  if (contentLen > 0 && contentType?.startsWith('application/json')) {
+    const lookupResult: LookupResult = JSON.parse(resp.body);
+    result.address = lookupResult.address;
+
+    const statusClass = Math.round(resp.statusCode / 100);
+    switch (statusClass) {
+      case 2:
+        if (!lookupResult.phone) lookupResult.phone = getFakeNumberFor(name);
+        result.phoneNumber = cleanPhoneNumber(lookupResult.phone);
+        if (!result.phoneNumber) result.error = 'no phone record found';
+        break;
+      case 4:
+        result.error = lookupResult.message;
+        break;
+      default:
     }
+  } else {
+    result.error = `unknown failure from ${lookupUrl}: ${resp.statusCode} ${resp.statusMessage}`;
   }
 
   const logFn = result.error ? log.error : log.info;
   logFn('chainHelper.translate:', result);
   return result;
-}
-
-let haveChecked = false;
-let etherProvider: JsonRpcProvider | undefined;
-
-function getEtherProvider(): JsonRpcProvider | undefined {
-  if (!haveChecked && window.Events) {
-    const url = window.Events.getEtherProviderUrl();
-    if (url) {
-      etherProvider = new etherProviders.JsonRpcProvider(url);
-      if (etherProvider) {
-        log.info('chainHelper.getProvider:', etherProvider);
-      } else {
-        log.error(
-          'chainHelper.getProvider: failed to get a new provider using',
-          url
-        );
-      }
-    } else {
-      log.info('chainHelper.getProvider: not configured');
-    }
-
-    haveChecked = true;
-  }
-
-  return etherProvider;
 }
 
 function cleanPhoneNumber(number: string | undefined): string | undefined {

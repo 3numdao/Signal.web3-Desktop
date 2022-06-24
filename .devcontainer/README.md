@@ -17,11 +17,6 @@ REMEMBER: You can use the NODE_APP_INSTANCE env var to point to different local 
 * the runtime uses the profile name as a way to look up the associated config
     * e.g. "alice" loads "local-alice.json" and uses ~/.config/Signal.alice as the runtime config directory
 
-To enable ENS phone record lookups, place a new key in the `~/.config/Signal.alice/ephemeral.json` file:
-```json
-"ether-provider-url": "https://eth-mainnet.alchemyapi.io/v2/He4N9jHvGr21IQ4F2FNU-ZuMeEmy-Mhm",
-```
-
 ## Registering Standalone
 
 * following CONTRIBUTING.md section

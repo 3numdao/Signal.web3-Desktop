@@ -1,7 +1,6 @@
 {
   "serverUrl": "https://chat.signal.org",
   "storageUrl": "https://storage.signal.org",
-  "etherProviderUrl": "https://eth-mainnet.alchemyapi.io/v2/He4N9jHvGr21IQ4F2FNU-ZuMeEmy-Mhm",
   "directoryVersion": 1,
   "directoryUrl": "https://api.directory.signal.org",
   "directoryEnclaveId": "c98e00a4e3ff977a56afefe7362a27e4961e4f19e211febfbb19b897e6b80b15",

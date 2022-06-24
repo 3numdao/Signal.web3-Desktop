@@ -10,6 +10,7 @@ const { execSync } = require('node:child_process');
 const arg = require('arg');
 const AWS = require('aws-sdk');
 const yaml = require('js-yaml');
+const mime = require('mime');
 
 async function main() {
   const args = arg({
@@ -150,7 +151,7 @@ function getSHA512(filePath) {
 }
 
 /**
- * @param {fs.PathLike} filePath
+ * @param {string} filePath
  * @param {AWS.S3} s3
  * @param {string} bucket
  * @param {string} key
@@ -162,9 +163,26 @@ async function upload(filePath, s3, bucket, key) {
       Bucket: bucket,
       Key: key,
       Body: fs.createReadStream(filePath),
+      ContentType: contentTypeOf(filePath),
     })
     .promise();
   out('     =>', resp.Key, resp.ETag);
+}
+
+/**
+ * @param {string} filePath
+ */
+function contentTypeOf(filePath) {
+  // the mime helper provides the more generic octet-stream type for some
+  // extensions, so we'll be explicit here (to emulate what Signal uses)
+  switch (path.extname(filePath)) {
+    case 'dmg':
+      return 'application/x-apple-diskimage';
+    case 'exe':
+      return 'application/x-msdownload';
+    default:
+      return mime.getType(filePath) || 'application/octet-stream';
+  }
 }
 
 /**

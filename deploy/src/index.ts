@@ -1,20 +1,22 @@
-import mime from 'mime/lite';
+import yaml from 'js-yaml';
 
 export interface Env {
-  // Example binding to KV. Learn more at https://developers.cloudflare.com/workers/runtime-apis/kv/
-  // MY_KV_NAMESPACE: KVNamespace;
-  //
-  // Example binding to Durable Object. Learn more at https://developers.cloudflare.com/workers/runtime-apis/durable-objects/
-  // MY_DURABLE_OBJECT: DurableObjectNamespace;
-
   RELEASES_AUTH_KEY: string;
+  LATEST_CACHE_TTL: number;
   RELEASES_BUCKET: R2Bucket;
+  LATEST_CACHE: KVNamespace;
 }
+
+type PathElements = {
+  dir: string;
+  base: string;
+  ext: string;
+};
 
 const ALLOW_LIST = [
   '^static/',
   '^desktop/[^/]+.yml$',
-  '^desktop/signal-ens-desktop-[^/]+$',
+  '^desktop/signal-ens-desktop[-_][^/]+$',
 ];
 
 // Check requests for a pre-shared secret
@@ -25,7 +27,7 @@ const hasValidHeader = (request: Request, env: Env) => {
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
-    const key = url.pathname.slice(1);
+    let key = url.pathname.slice(1);
 
     if (!authorizeRequest(request, env, key)) {
       return new Response('Forbidden', { status: 403 });
@@ -42,6 +44,7 @@ export default {
           return fetch(upstream);
         }
 
+        key = await getReleasesKey(env, key);
         const object = await env.RELEASES_BUCKET.get(key);
 
         if (!object || !object.body) {
@@ -53,7 +56,6 @@ export default {
         headers.set('etag', object.httpEtag);
 
         setCacheControl(headers, key);
-        setContentType(headers, key);
 
         return new Response(object.body, {
           headers,
@@ -63,17 +65,12 @@ export default {
         return new Response('Deleted!');
 
       default:
-        return new Response('Method Not Allowed', {
-          status: 405,
-          headers: {
-            Allow: 'PUT, GET, DELETE',
-          },
-        });
+        return methodNotAllowed();
     }
   },
 };
 
-function authorizeRequest(request: Request, env: Env, key: string) {
+function authorizeRequest(request: Request, env: Env, key: string): boolean {
   switch (request.method) {
     case 'PUT':
     case 'DELETE':
@@ -92,6 +89,53 @@ function authorizeRequest(request: Request, env: Env, key: string) {
   return false;
 }
 
+async function getReleasesKey(env: Env, key: string): Promise<string> {
+  const elements = pathSplit(key);
+  if (!elements.base.match(/[-_]latest[_.]/)) return key;
+
+  const ext = getExt(key);
+  const cachedKey = await env.LATEST_CACHE.get(ext);
+  if (cachedKey) {
+    console.log('returning', cachedKey, '(cached)')
+    return cachedKey;
+  }
+
+  let manifestExt: string;
+  switch (ext) {
+    case 'dmg':
+      manifestExt = '-mac';
+      break;
+    case 'exe':
+      manifestExt = '';
+      break;
+    case 'deb':
+      manifestExt = '-linux';
+      break;
+    default:
+      console.error('unable to get latest object (unsupported key)', key);
+      return key;
+  }
+
+  const manifestKey = `${elements.dir}/latest${manifestExt}.yml`;
+  const manifestObj = await env.RELEASES_BUCKET.get(manifestKey);
+  if (!manifestObj || !manifestObj.body) {
+    console.error(`unable to get ${manifestKey}: object not found`);
+    return key;
+  }
+
+  type Manifest = { path: string }; // don't care about any of the other keys
+  const body = await manifestObj.text();
+  const manifest: Manifest = yaml.load(body);
+
+  const latestKey = `${elements.dir}/${manifest.path}`;
+  await env.LATEST_CACHE.put(ext, latestKey, {
+    expirationTtl: env.LATEST_CACHE_TTL || 300,
+  });
+
+  console.log('returning', latestKey);
+  return latestKey;
+}
+
 function setCacheControl(headers: Headers, key: string) {
   // use same settings as what official Signal service reports
   // (300 seconds--yes, even for large binaries)
@@ -101,24 +145,13 @@ function setCacheControl(headers: Headers, key: string) {
   headers.set('cache-control', `public, max-age=${expiry}`);
 }
 
-function setContentType(headers: Headers, key: string) {
-  const ext = getExt(key);
-
-  // the mime helper provides the more generic octet-stream type for some extensions,
-  // so we'll be explicit here (to emulate what Signal uses)
-  let typ: string;
-  switch (ext) {
-    case 'dmg':
-      typ = 'application/x-apple-diskimage';
-      break;
-    case 'exe':
-      typ = 'application/x-msdownload';
-      break;
-    default:
-      typ = mime.getType(ext) || 'application/octet-stream';
-  }
-
-  headers.set('content-type', typ);
+function pathSplit(filename: string): PathElements {
+  const lastSlash = filename.lastIndexOf('/');
+  return {
+    ext: getExt(filename),
+    base: filename.substring(lastSlash + 1, filename.length),
+    dir: filename.substring(0, lastSlash),
+  };
 }
 
 function getExt(filename: string): string {
@@ -126,4 +159,13 @@ function getExt(filename: string): string {
     filename.substring(filename.lastIndexOf('.') + 1, filename.length) ||
     filename
   );
+}
+
+function methodNotAllowed(): Response | PromiseLike<Response> {
+  return new Response('Method Not Allowed', {
+    status: 405,
+    headers: {
+      Allow: 'PUT, GET, DELETE',
+    },
+  });
 }

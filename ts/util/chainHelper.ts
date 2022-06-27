@@ -1,6 +1,8 @@
 import got from 'got';
+
 import * as log from '../logging/log';
 import { parseNumber } from './libphonenumberUtil';
+import { report } from './telemetry';
 
 export type TranslateResult = {
   name?: string;
@@ -40,8 +42,9 @@ export async function translateNameToPhoneNumber(
   const contentType = resp.headers['content-type'];
   const contentLen = Number(resp.headers['content-length'] || '');
 
+  let lookupResult: LookupResult;
   if (contentLen > 0 && contentType?.startsWith('application/json')) {
-    const lookupResult: LookupResult = JSON.parse(resp.body);
+    lookupResult = JSON.parse(resp.body);
     result.address = lookupResult.address;
 
     const statusClass = Math.round(resp.statusCode / 100);
@@ -57,11 +60,16 @@ export async function translateNameToPhoneNumber(
       default:
     }
   } else {
+    lookupResult = {};
     result.error = `unknown failure from ${lookupUrl}: ${resp.statusCode} ${resp.statusMessage}`;
   }
 
   const logFn = result.error ? log.error : log.info;
   logFn('chainHelper.translate:', result);
+  report('eth-lookup', {
+    result: result.error ? lookupResult.name || 'failure' : 'success',
+  });
+
   return result;
 }
 

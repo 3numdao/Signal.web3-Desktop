@@ -38,7 +38,7 @@ jobs:
             release_suffix: windows
 
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 60
+    timeout-minutes: 45
 
     steps:
       - name: Install Apple certificates
@@ -91,6 +91,8 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - run: yarn generate
+        env:
+          TELEMETRY_API_KEY: ${{ secrets.TELEMETRY_API_KEY }}
       - run: yarn prepare-beta-build
 
       - name: Run yarn build (non-windows)
@@ -134,3 +136,13 @@ jobs:
       - name: Clean up keychain and provisioning profile
         if: ${{ always() &&  matrix.os == 'macos-latest' }}
         run: security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
+
+  announce:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: th0th/notify-discord@v0.4.1
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_JOB_STATUS: ${{ job.status }}

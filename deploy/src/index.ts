@@ -1,4 +1,8 @@
+import md5 from 'md5';
 import yaml from 'js-yaml';
+
+import { PathName } from './PathName';
+import { report } from './telemetry';
 
 export interface Env {
   RELEASES_AUTH_KEY: string;
@@ -6,12 +10,6 @@ export interface Env {
   RELEASES_BUCKET: R2Bucket;
   LATEST_CACHE: KVNamespace;
 }
-
-type PathElements = {
-  dir: string;
-  base: string;
-  ext: string;
-};
 
 type ManifestFile = {
   url: string;
@@ -57,18 +55,29 @@ export default {
           return fetch(upstream);
         }
 
-        key = await getReleasesKey(env, key);
-        const object = await env.RELEASES_BUCKET.get(key);
+        const pathname = await getReleasesKey(env, key);
+        const object = await env.RELEASES_BUCKET.get(pathname.toString());
 
         if (!object || !object.body) {
           return new Response('Object Not Found', { status: 404 });
+        }
+
+        if (pathname.ext != 'yml') {
+          const props = getNameProperties(pathname.base);
+          if (props) {
+            // make all requests effectively unique (no reliable way to know who's calling)
+            const ip = request.headers.get('CF-Connecting-IP');
+            props.distinct_id = md5(`${ip}${new Date()}`);
+            props['$ip'] = ip;
+            await report('download', props);
+          }
         }
 
         const headers = new Headers();
         object.writeHttpMetadata(headers);
         headers.set('etag', object.httpEtag);
 
-        setCacheControl(headers, key);
+        setCacheControl(headers);
 
         return new Response(object.body, {
           headers,
@@ -102,19 +111,20 @@ function authorizeRequest(request: Request, env: Env, key: string): boolean {
   return false;
 }
 
-async function getReleasesKey(env: Env, key: string): Promise<string> {
-  const elements = pathSplit(key);
-  if (!elements.base.match(/[-_]latest[_.]/)) return key;
+async function getReleasesKey(env: Env, key: string): Promise<PathName> {
+  const pathname = new PathName(key);
+  if (!pathname.ext || !pathname.base.match(/[-_]latest[_.]/)) {
+    return pathname;
+  }
 
-  const ext = getExt(key);
-  const cachedKey = await env.LATEST_CACHE.get(ext);
+  const cachedKey = await env.LATEST_CACHE.get(pathname.ext);
   if (cachedKey) {
     console.log('returning', cachedKey, '(cached)');
-    return cachedKey;
+    return new PathName(cachedKey);
   }
 
   let manifestExt: string;
-  switch (ext) {
+  switch (pathname.ext) {
     case 'dmg':
       manifestExt = '-mac';
       break;
@@ -125,65 +135,91 @@ async function getReleasesKey(env: Env, key: string): Promise<string> {
       manifestExt = '-linux';
       break;
     default:
-      console.error('unable to get latest object (unsupported key)', key);
-      return key;
+      console.error('unable to get latest object (unsupported key)', pathname);
+      return pathname;
   }
 
-  const manifestKey = `${elements.dir}/latest${manifestExt}.yml`;
+  const manifestKey = `${pathname.dir}/latest${manifestExt}.yml`;
   const manifestObj = await env.RELEASES_BUCKET.get(manifestKey);
   if (!manifestObj || !manifestObj.body) {
     console.error(`unable to get ${manifestKey}: object not found`);
-    return key;
+    return pathname;
   }
 
   const body = await manifestObj.text();
   const manifest: Manifest = yaml.load(body);
 
-  const latestUrl = elements.base.replace('latest', manifest.version);
+  const latestUrl = pathname.base.replace('latest', manifest.version);
   let latestKey: string = '';
   for (const mf of manifest.files) {
     if (mf.url == latestUrl) {
-      latestKey = `${elements.dir}/${mf.url}`;
+      latestKey = `${pathname.dir}/${mf.url}`;
       break;
     }
   }
 
   if (!latestKey) {
-    console.error(`unable to find match for ${key} in`, manifest);
-    return key;
+    console.error(`unable to find match for ${pathname} in`, manifest);
+    return pathname;
   }
 
-  await env.LATEST_CACHE.put(ext, latestKey, {
+  await env.LATEST_CACHE.put(pathname.ext, latestKey, {
     expirationTtl: env.LATEST_CACHE_TTL || 300,
   });
 
   console.log('returning', latestKey);
-  return latestKey;
+  return new PathName(latestKey);
 }
 
-function setCacheControl(headers: Headers, key: string) {
+const macRE = new RegExp('-mac-([^-]+)-(.+).(exe.*)$');
+const winRE = new RegExp('-win-([^-]+)-(.+).(exe.*)$');
+const linRE = new RegExp('_([^_]+)_([^.]+).(deb.*)$');
+
+function getNameProperties(name: string): any {
+  // using NodeJS `Platform` values (to match what is reported from the clients)
+  let properties;
+  let match = name.match(macRE);
+  if (match) {
+    properties = {
+      platform: 'darwin',
+      arch: match[1],
+      version: match[2],
+      ext: match[3],
+    };
+  } else {
+    match = name.match(winRE);
+    if (match) {
+      properties = {
+        platform: 'win32',
+        arch: match[1],
+        version: match[2],
+        ext: match[3],
+      };
+    } else {
+      match = name.match(linRE);
+      if (match) {
+        properties = {
+          platform: 'linux',
+          version: match[1],
+          arch: match[2],
+          ext: match[3],
+        };
+      } else {
+        console.error('unable to parse platform/arch:', name);
+      }
+    }
+  }
+
+  return properties;
+}
+
+function setCacheControl(headers: Headers) {
   // use same settings as what official Signal service reports
   // (300 seconds--yes, even for large binaries)
   const expiry = 300;
   const expires = new Date(Date.now() + expiry * 1000);
   headers.set('expires', expires.toUTCString());
   headers.set('cache-control', `public, max-age=${expiry}`);
-}
-
-function pathSplit(filename: string): PathElements {
-  const lastSlash = filename.lastIndexOf('/');
-  return {
-    ext: getExt(filename),
-    base: filename.substring(lastSlash + 1, filename.length),
-    dir: filename.substring(0, lastSlash),
-  };
-}
-
-function getExt(filename: string): string {
-  return (
-    filename.substring(filename.lastIndexOf('.') + 1, filename.length) ||
-    filename
-  );
 }
 
 function methodNotAllowed(): Response | PromiseLike<Response> {

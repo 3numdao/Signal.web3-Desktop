@@ -27,7 +27,7 @@ type Manifest = {
 const ALLOW_LIST = [
   '^static/',
   '^desktop/[^/]+.yml$',
-  '^desktop/signal-ens-desktop[-_][^/]+$',
+  '^desktop/signal.web3-desktop[-_][^/]+$',
 ];
 
 // Check requests for a pre-shared secret

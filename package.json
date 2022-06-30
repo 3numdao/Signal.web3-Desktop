@@ -1,10 +1,10 @@
 {
-  "name": "signal-ens-desktop",
-  "productName": "Signal+ENS",
+  "name": "signal.web3-desktop",
+  "productName": "Signal.web3",
   "description": "Private messaging from your desktop",
-  "desktopName": "signal+ens.desktop",
+  "desktopName": "signal.web3.desktop",
   "repository": "https://github.com/signalapp/Signal-Desktop.git",
-  "version": "5.47.0-enum.2",
+  "version": "5.47.0-enum.3",
   "license": "AGPL-3.0-only",
   "author": {
     "name": "ΞNUM DAO",
@@ -316,7 +316,7 @@
     "node": "16.13.2"
   },
   "build": {
-    "appId": "org.whispersystems.signal-ens-desktop",
+    "appId": "wtf.enum.signal-web3-desktop",
     "mac": {
       "artifactName": "${name}-mac-${arch}-${version}.${ext}",
       "category": "public.app-category.social-networking",
@@ -374,7 +374,7 @@
     "linux": {
       "category": "Network;InstantMessaging;Chat",
       "desktop": {
-        "StartupWMClass": "Signal+ENS"
+        "StartupWMClass": "Signal.web3"
       },
       "target": [
         "deb"

@@ -42,7 +42,7 @@ jobs:
   macos:
     needs: lint
     runs-on: macos-11
-    if: ${{ github.repository == 'enumdao/Signal-ENS-Desktop' && github.ref == 'refs/heads/main' }}
+    if: ${{ github.repository == 'enumdao/Signal.web3-Desktop' && github.ref == 'refs/heads/main' }}
     timeout-minutes: 30
 
     steps:
@@ -124,7 +124,7 @@ jobs:
     needs: lint
     runs-on: windows-latest
     timeout-minutes: 30
-    if: ${{ github.repository == 'enumdao/Signal-ENS-Desktop' && github.ref == 'refs/heads/main' }}
+    if: ${{ github.repository == 'enumdao/Signal.web3-Desktop' && github.ref == 'refs/heads/main' }}
 
     steps:
     - run: systeminfo

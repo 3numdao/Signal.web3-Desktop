@@ -41,6 +41,7 @@ import * as GlobalErrors from './global_errors';
 import { setup as setupCrashReports } from './crashReports';
 import { setup as setupSpellChecker } from './spell_check';
 import { redactAll, addSensitivePath } from '../ts/util/privacy';
+import { createSupportUrl } from '../ts/util/createSupportUrl';
 import { missingCaseError } from '../ts/util/missingCaseError';
 import { strictAssert } from '../ts/util/assert';
 import { consoleLogger } from '../ts/util/consoleLogger';
@@ -629,7 +630,7 @@ async function getTitleBarOverlay(): Promise<TitleBarOverlayOptions | false> {
     symbolColor,
 
     // Should match stylesheets/components/TitleBarContainer.scss
-    height: 28,
+    height: 28 - 1,
   };
 }
 
@@ -1033,9 +1034,7 @@ const TEN_MINUTES = 10 * 60 * 1000;
 setTimeout(readyForUpdates, TEN_MINUTES);
 
 function openContactUs() {
-  shell.openExternal(
-    'https://github.com/enumdao/Signal.web3-Desktop/issues/new/choose'
-  );
+  shell.openExternal(createSupportUrl({ locale: app.getLocale() }));
 }
 
 function openJoinTheBeta() {
@@ -1050,13 +1049,13 @@ function openReleaseNotes() {
   }
 
   shell.openExternal(
-    `https://github.com/enumdao/Signal.web3-Desktop/releases/tag/v${app.getVersion()}`
+    `https://github.com/signalapp/Signal-Desktop/releases/tag/v${app.getVersion()}`
   );
 }
 
 function openSupportPage() {
   // If we omit the language, the site will detect the language and redirect
-  shell.openExternal('https://github.com/enumdao/Signal.web3-Desktop/');
+  shell.openExternal('https://support.signal.org/hc/sections/360001602812');
 }
 
 function openForums() {

@@ -157,6 +157,7 @@ import { SeenStatus } from '../MessageSeenStatus';
 import { isNewReactionReplacingPrevious } from '../reactions/util';
 import { parseBoostBadgeListFromServer } from '../badges/parseBadgesFromServer';
 import { GiftBadgeStates } from '../components/conversation/Message';
+import { downloadAttachment } from '../util/downloadAttachment';
 
 /* eslint-disable more/no-then */
 
@@ -225,15 +226,19 @@ export class MessageModel extends window.Backbone.Model<MessageAttributesType> {
       );
     }
 
-    const sendStateByConversationId = migrateLegacySendAttributes(
-      this.attributes,
-      window.ConversationController.get.bind(window.ConversationController),
-      window.ConversationController.getOurConversationIdOrThrow()
-    );
-    if (sendStateByConversationId) {
-      this.set('sendStateByConversationId', sendStateByConversationId, {
-        silent: true,
-      });
+    const ourConversationId =
+      window.ConversationController.getOurConversationId();
+    if (ourConversationId) {
+      const sendStateByConversationId = migrateLegacySendAttributes(
+        this.attributes,
+        window.ConversationController.get.bind(window.ConversationController),
+        ourConversationId
+      );
+      if (sendStateByConversationId) {
+        this.set('sendStateByConversationId', sendStateByConversationId, {
+          silent: true,
+        });
+      }
     }
 
     this.CURRENT_PROTOCOL_VERSION = Proto.DataMessage.ProtocolVersion.CURRENT;
@@ -2451,10 +2456,7 @@ export class MessageModel extends window.Backbone.Model<MessageAttributesType> {
               let hash;
               if (avatarAttachment) {
                 try {
-                  downloadedAvatar =
-                    await window.Signal.Util.downloadAttachment(
-                      avatarAttachment
-                    );
+                  downloadedAvatar = await downloadAttachment(avatarAttachment);
 
                   if (downloadedAvatar) {
                     const loadedAttachment =
@@ -2613,21 +2615,27 @@ export class MessageModel extends window.Backbone.Model<MessageAttributesType> {
                 if (
                   dataMessage.expireTimer !== conversation.get('expireTimer')
                 ) {
-                  conversation.updateExpirationTimer(
-                    dataMessage.expireTimer,
+                  conversation.updateExpirationTimer(dataMessage.expireTimer, {
                     source,
-                    message,
-                    {
-                      fromGroupUpdate: isGroupUpdate(message.attributes),
-                    }
-                  );
+                    receivedAt: message.get('received_at'),
+                    receivedAtMS: message.get('received_at_ms'),
+                    sentAt: message.get('sent_at'),
+                    fromGroupUpdate: isGroupUpdate(message.attributes),
+                    reason: `handleDataMessage(${this.idForLogging()})`,
+                  });
                 }
               } else if (
                 conversation.get('expireTimer') &&
                 // We only turn off timers if it's not a group update
                 !isGroupUpdate(message.attributes)
               ) {
-                conversation.updateExpirationTimer(undefined, source, message);
+                conversation.updateExpirationTimer(undefined, {
+                  source,
+                  receivedAt: message.get('received_at'),
+                  receivedAtMS: message.get('received_at_ms'),
+                  sentAt: message.get('sent_at'),
+                  reason: `handleDataMessage(${this.idForLogging()})`,
+                });
               }
             }
           }

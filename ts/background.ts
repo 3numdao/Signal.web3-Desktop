@@ -429,7 +429,7 @@ export async function startApp(): Promise<void> {
 
   const eventHandlerQueue = new window.PQueue({
     concurrency: 1,
-    timeout: 1000 * 60 * 2,
+    timeout: durations.MINUTE * 30,
   });
 
   const profileKeyResponseQueue = new window.PQueue();
@@ -447,7 +447,7 @@ export async function startApp(): Promise<void> {
 
   window.Whisper.deliveryReceiptQueue = new window.PQueue({
     concurrency: 1,
-    timeout: 1000 * 60 * 2,
+    timeout: durations.MINUTE * 30,
   });
   window.Whisper.deliveryReceiptQueue.pause();
   window.Whisper.deliveryReceiptBatcher =
@@ -1526,6 +1526,10 @@ export async function startApp(): Promise<void> {
         (key === 'c' || key === 'C')
       ) {
         conversation.trigger('unload', 'keyboard shortcut close');
+        window.reduxActions.conversations.showConversation({
+          conversationId: undefined,
+          messageId: undefined,
+        });
         event.preventDefault();
         event.stopPropagation();
         return;
@@ -2727,15 +2731,13 @@ export async function startApp(): Promise<void> {
       const { expireTimer } = details;
       const isValidExpireTimer = typeof expireTimer === 'number';
       if (isValidExpireTimer) {
-        await conversation.updateExpirationTimer(
-          expireTimer,
-          window.ConversationController.getOurConversationId(),
-          undefined,
-          {
-            fromSync: true,
-            isInitialSync,
-          }
-        );
+        await conversation.updateExpirationTimer(expireTimer, {
+          source: window.ConversationController.getOurConversationId(),
+          receivedAt: ev.receivedAtCounter,
+          fromSync: true,
+          isInitialSync,
+          reason: 'contact sync',
+        });
       }
     } catch (error) {
       log.error('onContactReceived error:', Errors.toLogFormat(error));
@@ -2811,14 +2813,12 @@ export async function startApp(): Promise<void> {
       return;
     }
 
-    await conversation.updateExpirationTimer(
-      expireTimer,
-      window.ConversationController.getOurConversationId(),
-      undefined,
-      {
-        fromSync: true,
-      }
-    );
+    await conversation.updateExpirationTimer(expireTimer, {
+      fromSync: true,
+      receivedAt: ev.receivedAtCounter,
+      source: window.ConversationController.getOurConversationId(),
+      reason: 'group sync',
+    });
   }
 
   // Received:

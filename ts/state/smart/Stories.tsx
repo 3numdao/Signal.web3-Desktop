@@ -6,7 +6,9 @@ import { useSelector } from 'react-redux';
 
 import type { LocalizerType } from '../../types/Util';
 import type { StateType } from '../reducer';
+import type { PropsType as SmartStoryCreatorPropsType } from './StoryCreator';
 import type { PropsType as SmartStoryViewerPropsType } from './StoryViewer';
+import { SmartStoryCreator } from './StoryCreator';
 import { SmartStoryViewer } from './StoryViewer';
 import { Stories } from '../../components/Stories';
 import { getIntl } from '../selectors/user';
@@ -14,6 +16,12 @@ import { getPreferredLeftPaneWidth } from '../selectors/items';
 import { getStories } from '../selectors/stories';
 import { useStoriesActions } from '../ducks/stories';
 import { useConversationsActions } from '../ducks/conversations';
+
+function renderStoryCreator({
+  onClose,
+}: SmartStoryCreatorPropsType): JSX.Element {
+  return <SmartStoryCreator onClose={onClose} />;
+}
 
 function renderStoryViewer({
   conversationId,
@@ -33,8 +41,7 @@ function renderStoryViewer({
 
 export function SmartStories(): JSX.Element | null {
   const storiesActions = useStoriesActions();
-  const { openConversationInternal, toggleHideStories } =
-    useConversationsActions();
+  const { showConversation, toggleHideStories } = useConversationsActions();
 
   const i18n = useSelector<StateType, LocalizerType>(getIntl);
 
@@ -56,9 +63,10 @@ export function SmartStories(): JSX.Element | null {
     <Stories
       hiddenStories={hiddenStories}
       i18n={i18n}
-      openConversationInternal={openConversationInternal}
       preferredWidthFromStorage={preferredWidthFromStorage}
+      renderStoryCreator={renderStoryCreator}
       renderStoryViewer={renderStoryViewer}
+      showConversation={showConversation}
       stories={stories}
       toggleHideStories={toggleHideStories}
       {...storiesActions}

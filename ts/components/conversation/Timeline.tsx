@@ -161,7 +161,6 @@ export type PropsActionsType = {
   ) => void;
 
   learnMoreAboutDeliveryIssue: () => unknown;
-  loadAndScroll: (messageId: string) => unknown;
   loadOlderMessages: (messageId: string) => unknown;
   loadNewerMessages: (messageId: string) => unknown;
   loadNewestMessages: (messageId: string, setFocus?: boolean) => unknown;
@@ -220,7 +219,6 @@ const getActions = createSelector(
       'reviewGroupMemberNameCollision',
       'reviewMessageRequestNameCollision',
       'learnMoreAboutDeliveryIssue',
-      'loadAndScroll',
       'loadOlderMessages',
       'loadNewerMessages',
       'loadNewestMessages',
@@ -566,8 +564,10 @@ export class Timeline extends React.Component<
   public override componentDidMount(): void {
     const containerEl = this.containerRef.current;
     const messagesEl = this.messagesRef.current;
+    const { isConversationSelected } = this.props;
     strictAssert(
-      containerEl && messagesEl,
+      // We don't render anything unless the conversation is selected
+      (containerEl && messagesEl) || !isConversationSelected,
       '<Timeline> mounted without some refs'
     );
 

@@ -12,6 +12,8 @@ const AWS = require('aws-sdk');
 const yaml = require('js-yaml');
 const mime = require('mime');
 
+const retryDelay = 30; // seconds
+
 async function main() {
   const args = arg({
     '--help': Boolean,
@@ -156,17 +158,30 @@ function getSHA512(filePath) {
  * @param {string} bucket
  * @param {string} key
  */
-async function upload(filePath, s3, bucket, key) {
+async function upload(filePath, s3, bucket, key, attempts = 1) {
   out('upload:', filePath);
-  const resp = await s3
-    .upload({
-      Bucket: bucket,
-      Key: key,
-      Body: fs.createReadStream(filePath),
-      ContentType: contentTypeOf(filePath),
-    })
-    .promise();
-  out('     =>', resp.Key, resp.ETag);
+  try {
+    const resp = await s3
+      .upload({
+        Bucket: bucket,
+        Key: key,
+        Body: fs.createReadStream(filePath),
+        ContentType: contentTypeOf(filePath),
+      })
+      .promise();
+    out('     =>', resp.Key, resp.ETag);
+  } catch (e) {
+    // @ts-ignore
+    if (attempts < 3 && e.retryable) {
+      // this happens in matrix builds uploading for all 3 platforms concurrently
+      const sleepTime = retryDelay * attempts;
+      err(-1, `upload ${key} failed (retrying in ${sleepTime} seconds):`, e);
+      await new Promise(r => setTimeout(r, sleepTime * 1000));
+      await upload(filePath, s3, bucket, key, attempts + 1);
+    } else {
+      throw e;
+    }
+  }
 }
 
 /**
@@ -198,7 +213,7 @@ function out(...args) {
  */
 function err(code, ...args) {
   process.stderr.write(`${toStr(args)}\n`);
-  process.exit(code);
+  if (code > -1) process.exit(code);
 }
 
 /**

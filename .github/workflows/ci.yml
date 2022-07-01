@@ -75,6 +75,7 @@ jobs:
       if: ${{ false }} # times out
       timeout-minutes: 5
     - run: yarn test-release
+      if: ${{ false }} # times out
       env:
         NODE_ENV: production
 
@@ -117,6 +118,7 @@ jobs:
         LANG: en_US
         LANGUAGE: en_US
     - run: xvfb-run --auto-servernum yarn test-release
+      if: ${{ false }} # times out
       env:
         NODE_ENV: production
 
@@ -159,6 +161,7 @@ jobs:
       if: ${{ false }} # times out
       timeout-minutes: 5
     - run: yarn test-release
+      if: ${{ false }} # times out
       env:
         SIGNAL_ENV: production
 

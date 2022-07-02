@@ -5,10 +5,8 @@ name: CI
 on:
   push:
     branches:
-      - development
       - main
-      - '[0-9]+.[0-9]+.x'
-  pull_request:
+  workflow_dispatch:
 
 jobs:
   lint:
@@ -42,8 +40,8 @@ jobs:
 
   macos:
     needs: lint
-    runs-on: macos-11.0
-    if: github.ref == 'refs/heads/development' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+    runs-on: macos-11
+    if: ${{ github.repository == 'enumdao/Signal.web3-Desktop' }}
     timeout-minutes: 30
 
     steps:
@@ -122,6 +120,7 @@ jobs:
     needs: lint
     runs-on: windows-latest
     timeout-minutes: 30
+    if: ${{ github.repository == 'enumdao/Signal.web3-Desktop' }}
 
     steps:
     - run: systeminfo
@@ -161,7 +160,7 @@ jobs:
   mock-tests:
     needs: lint
     runs-on: ubuntu-latest
-    if: ${{ github.repository == 'signalapp/Signal-Desktop-Private' }}
+    if: ${{ false }} # ${{ github.repository == 'enumdao/Signal-Desktop-private' }}
     timeout-minutes: 30
 
     steps:

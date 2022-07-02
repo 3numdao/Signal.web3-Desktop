@@ -25,6 +25,7 @@ stylesheets/*.css
 /storybook-static/
 preload.bundle.*
 ts/sql/mainWorker.bundle.js.LICENSE.txt
+.telemetry.json
 
 # React / TypeScript
 app/*.js

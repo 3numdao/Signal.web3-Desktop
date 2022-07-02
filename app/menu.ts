@@ -178,6 +178,7 @@ export const createTemplate = (
         {
           label: messages.contactUs.message,
           click: openContactUs,
+          visible: false,
         },
         {
           label: messages.goToReleaseNotes.message,
@@ -186,6 +187,7 @@ export const createTemplate = (
         {
           label: messages.goToForums.message,
           click: openForums,
+          visible: false,
         },
         {
           label: messages.goToSupportPage.message,

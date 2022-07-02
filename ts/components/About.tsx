@@ -46,13 +46,15 @@ export const About = ({
           <div className="version">{version}</div>
           <div className="environment">{environment}</div>
           <div>
-            <a href="https://signal.org">signal.org</a>
+            <a href="https://github.com/enumdao/Signal.web3-Desktop/">
+              Signal.web3 Desktop
+            </a>
           </div>
           <br />
           <div>
             <a
               className="acknowledgments"
-              href="https://github.com/signalapp/Signal-Desktop/blob/main/ACKNOWLEDGMENTS.md"
+              href="https://github.com/enumdao/Signal.web3-Desktop/blob/main/ACKNOWLEDGMENTS.md"
             >
               {i18n('softwareAcknowledgments')}
             </a>

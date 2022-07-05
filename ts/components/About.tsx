@@ -57,7 +57,10 @@ export const About = ({
             </a>
           </div>
           <div>
-            <a className="privacy" href="https://signal.org/legal">
+            <a
+              className="privacy"
+              href="https://hail-wisteria-c3e.notion.site/Signal-web3-Terms-of-Service-3a24079a36d64da0875eab8ec402e626"
+            >
               {i18n('privacyPolicy')}
             </a>
           </div>

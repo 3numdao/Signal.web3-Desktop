@@ -76,6 +76,11 @@ jobs:
       env:
         NODE_ENV: production
 
+    - uses: sarisia/actions-status-discord@v1
+      if: always()
+      with:
+        webhook: ${{ secrets.DISCORD_ACTION_URL }}
+
   linux:
     needs: lint
     runs-on: ubuntu-latest
@@ -115,6 +120,11 @@ jobs:
     - run: xvfb-run --auto-servernum yarn test-release
       env:
         NODE_ENV: production
+
+    - uses: sarisia/actions-status-discord@v1
+      if: always()
+      with:
+        webhook: ${{ secrets.DISCORD_ACTION_URL }}
 
   windows:
     needs: lint
@@ -156,6 +166,11 @@ jobs:
     - run: yarn test-release
       env:
         SIGNAL_ENV: production
+
+    - uses: sarisia/actions-status-discord@v1
+      if: always()
+      with:
+        webhook: ${{ secrets.DISCORD_ACTION_URL }}
 
   mock-tests:
     needs: lint
@@ -206,3 +221,8 @@ jobs:
       env:
         NODE_ENV: production
         DEBUG: mock:test:*
+
+    - uses: sarisia/actions-status-discord@v1
+      if: always()
+      with:
+        webhook: ${{ secrets.DISCORD_ACTION_URL }}

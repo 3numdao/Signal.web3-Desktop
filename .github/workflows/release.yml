@@ -11,15 +11,8 @@ jobs:
   create:
     runs-on: ubuntu-latest
     steps:
-      - name: Download package.json
-        run: >
-          curl -sS https://raw.githubusercontent.com/${{ env.GITHUB_REPOSITORY }}/${{ env.GITHUB_SHA }}/package.json?token=${{ secrets.GITHUB_TOKEN }}
-          > package.json
-      - name: Extract version as release name
-        run: echo "release_name=$(awk -F\" '$2 == "version" { print $4 }' package.json)" >> $GITHUB_ENV
       - uses: softprops/action-gh-release@v1
         with:
-          name: ${{ env.release_name }}
           generate_release_notes: false
 
   build:
@@ -39,6 +32,8 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     timeout-minutes: 45
+    outputs:
+      release_url: ${{ steps.release.outputs.url }}
 
     steps:
       - name: Install Apple certificates
@@ -130,9 +125,9 @@ jobs:
           name: manifests
           path: release/latest*.yml
 
-      - uses: softprops/action-gh-release@v1
+      - id: release
+        uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ needs.create.outputs.tag-name }}
           files: |
             release/*.dmg
             release/*.deb
@@ -146,8 +141,13 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: th0th/notify-discord@v0.4.1
-        env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          GITHUB_ACTOR: ${{ github.actor }}
-          GITHUB_JOB_STATUS: ${{ job.status }}
+      - uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          nodetail: true
+          title: "Released ${{ needs.build.outputs.release_url }}"
+
+      - uses: sarisia/actions-status-discord@v1
+        if: always()
+        with:
+          webhook: ${{ secrets.DISCORD_ACTION_URL }}

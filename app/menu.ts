@@ -125,12 +125,13 @@ export const createTemplate = (
           role: 'togglefullscreen',
           label: messages.viewMenuToggleFullScreen.message,
         },
-        {
-          type: 'separator',
-        },
+        // {
+        //   type: 'separator',
+        // },
         {
           label: messages.debugLog.message,
           click: showDebugLog,
+          visible: false,
         },
         ...(devTools
           ? [

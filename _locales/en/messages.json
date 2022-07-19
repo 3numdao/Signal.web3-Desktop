@@ -2544,7 +2544,7 @@
     "message": "contact support"
   },
   "autoUpdateNewVersionMessage": {
-    "message": "Click to restart Signal"
+    "message": "Click to restart Signal.web3"
   },
   "downloadNewVersionMessage": {
     "message": "Click to download update"

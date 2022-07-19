@@ -171,9 +171,9 @@ async function getReleasesKey(env: Env, key: string): Promise<PathName> {
   return new PathName(latestKey);
 }
 
-const macRE = new RegExp('-mac-([^-]+)-(.+).(exe.*)$');
-const winRE = new RegExp('-win-([^-]+)-(.+).(exe.*)$');
-const linRE = new RegExp('_([^_]+)_([^.]+).(deb.*)$');
+const macRE = new RegExp('-mac-([^-]+)-(.+)\\.((dmg|zip).*)$');
+const winRE = new RegExp('-win-([^-]+)-(.+)\\.(exe.*)$');
+const linRE = new RegExp('_([^_]+)_([^.]+)\\.(deb.*)$');
 
 function getNameProperties(name: string): any {
   // using NodeJS `Platform` values (to match what is reported from the clients)

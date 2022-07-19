@@ -20,8 +20,16 @@ export async function report(event: string, properties = {}): Promise<void> {
       body: JSON.stringify(json),
     });
 
-    await fetch(req);
-    console.log('telemetry report:', event, properties);
+    const resp = await fetch(req);
+    if (resp.status == 200 || resp.status == 201) {
+      console.log('telemetry report:', event, properties);
+    } else {
+      console.error(
+        `telemetry report ${event} failed:`,
+        resp.status,
+        resp.statusText
+      );
+    }
   } catch (err) {
     console.error(`telemetry report ${event} failed:`, err);
   }

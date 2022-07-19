@@ -6,6 +6,9 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - deploy/wrangler.toml
+      - deploy/src/**
   workflow_dispatch:
 
 jobs:
@@ -38,11 +41,17 @@ jobs:
     # - run: yarn lint-license-comments
     - run: git diff --exit-code
 
+    - uses: sarisia/actions-status-discord@v1
+      if: ${{ always() && !success() }}
+      with:
+        webhook: ${{ secrets.DISCORD_ACTION_URL }}
+        title: ${{ github.workflow }} lint
+
   macos:
     needs: lint
     runs-on: macos-11
     if: ${{ github.repository == 'enumdao/Signal.web3-Desktop' }}
-    timeout-minutes: 45
+    timeout-minutes: 30
 
     steps:
     - run: uname -a
@@ -80,6 +89,7 @@ jobs:
       if: always()
       with:
         webhook: ${{ secrets.DISCORD_ACTION_URL }}
+        title: ${{ runner.os }} ${{ github.workflow }}
 
   linux:
     needs: lint
@@ -125,6 +135,7 @@ jobs:
       if: always()
       with:
         webhook: ${{ secrets.DISCORD_ACTION_URL }}
+        title: ${{ runner.os }} ${{ github.workflow }}
 
   windows:
     needs: lint
@@ -171,6 +182,7 @@ jobs:
       if: always()
       with:
         webhook: ${{ secrets.DISCORD_ACTION_URL }}
+        title: ${{ runner.os }} ${{ github.workflow }}
 
   mock-tests:
     needs: lint
@@ -234,3 +246,4 @@ jobs:
       if: always()
       with:
         webhook: ${{ secrets.DISCORD_ACTION_URL }}
+        title: ${{ github.workflow }} mock-tests

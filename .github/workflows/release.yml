@@ -10,10 +10,18 @@ on:
 jobs:
   create:
     runs-on: ubuntu-latest
+    outputs:
+      release_url: ${{ steps.release.outputs.url }}
     steps:
-      - uses: softprops/action-gh-release@v1
+      - id: release
+        uses: softprops/action-gh-release@v1
         with:
           generate_release_notes: false
+      - uses: sarisia/actions-status-discord@v1
+        if: ${{ always() && !success() }}
+        with:
+          webhook: ${{ secrets.DISCORD_ACTION_URL }}
+          title: ${{ github.workflow }} create
 
   build:
     needs: create
@@ -33,7 +41,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 45
     outputs:
-      release_url: ${{ steps.release.outputs.url }}
+      release_url: ${{ needs.create.outputs.release_url }}
 
     steps:
       - name: Install Apple certificates
@@ -125,8 +133,7 @@ jobs:
           name: manifests
           path: release/latest*.yml
 
-      - id: release
-        uses: softprops/action-gh-release@v1
+      - uses: softprops/action-gh-release@v1
         with:
           files: |
             release/*.dmg
@@ -137,6 +144,12 @@ jobs:
         if: ${{ always() &&  matrix.os == 'macos-latest' }}
         run: security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
 
+      - uses: sarisia/actions-status-discord@v1
+        if: ${{ always() && !success() }}
+        with:
+          webhook: ${{ secrets.DISCORD_ACTION_URL }}
+          title: ${{ runner.os }} ${{ github.workflow }} build
+
   announce:
     needs: build
     runs-on: ubuntu-latest
@@ -145,9 +158,4 @@ jobs:
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
           nodetail: true
-          title: "Released ${{ needs.build.outputs.release_url }}"
-
-      - uses: sarisia/actions-status-discord@v1
-        if: always()
-        with:
-          webhook: ${{ secrets.DISCORD_ACTION_URL }}
+          title: Released ${{ needs.build.outputs.release_url }}

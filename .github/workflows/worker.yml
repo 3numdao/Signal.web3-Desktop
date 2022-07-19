@@ -16,9 +16,14 @@ jobs:
     - uses: actions/checkout@v3
     - uses: actions/setup-node@v3
       with:
-        node-version: .nvmrc
+        node-version-file: .nvmrc
         cache: yarn
         cache-dependency-path: deploy/yarn.lock
+
+    - run: echo '{"api_key":"${{ secrets.TELEMETRY_API_KEY }}"}' > .telemetry.json
+
+    - run: yarn install --frozen-lockfile
+      working-directory: deploy
 
     - uses: cloudflare/wrangler-action@2.0.0
       with:

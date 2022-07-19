@@ -1,3 +1,4 @@
+import { app } from 'electron';
 import got from 'got';
 
 import telemetryJson from '../../.telemetry.json';
@@ -6,6 +7,8 @@ import packageJson from '../../package.json';
 import { hash, HashType } from '../Crypto';
 import * as log from '../logging/log';
 import * as Bytes from '../Bytes';
+
+import { getUserAgent } from './getUserAgent';
 
 export async function report(event: string, properties = {}): Promise<void> {
   if (!telemetryJson.api_key) return;
@@ -35,9 +38,11 @@ export async function report(event: string, properties = {}): Promise<void> {
       );
     }
 
+    const headers = { 'User-Agent': getUserAgent(app.getVersion()) };
     const props = { ...defaultProps, ...properties };
 
     await got.post('https://app.posthog.com/capture', {
+      headers,
       json: {
         api_key: telemetryJson.api_key,
         event,

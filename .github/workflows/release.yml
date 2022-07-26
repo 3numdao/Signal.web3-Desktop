@@ -1,6 +1,3 @@
-# Copyright 2020-2022 Signal Messenger, LLC
-# SPDX-License-Identifier: AGPL-3.0-only
-
 name: Release
 on:
   push:
@@ -10,8 +7,6 @@ on:
 jobs:
   create:
     runs-on: ubuntu-latest
-    outputs:
-      release_url: ${{ steps.release.outputs.url }}
     steps:
       - id: release
         uses: softprops/action-gh-release@v1
@@ -40,8 +35,6 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     timeout-minutes: 45
-    outputs:
-      release_url: ${{ needs.create.outputs.release_url }}
 
     steps:
       - name: Install Apple certificates
@@ -154,8 +147,11 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - id: release
+        uses: softprops/action-gh-release@v1
+
       - uses: sarisia/actions-status-discord@v1
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
           nodetail: true
-          title: Released ${{ needs.build.outputs.release_url }}
+          title: Released ${{ steps.release.outputs.url }}

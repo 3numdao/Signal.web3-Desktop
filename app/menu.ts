@@ -125,12 +125,13 @@ export const createTemplate = (
           role: 'togglefullscreen',
           label: messages.viewMenuToggleFullScreen.message,
         },
-        {
-          type: 'separator',
-        },
+        // {
+        //   type: 'separator',
+        // },
         {
           label: messages.debugLog.message,
           click: showDebugLog,
+          visible: false,
         },
         ...(devTools
           ? [
@@ -178,6 +179,7 @@ export const createTemplate = (
         {
           label: messages.contactUs.message,
           click: openContactUs,
+          visible: false,
         },
         {
           label: messages.goToReleaseNotes.message,
@@ -186,6 +188,7 @@ export const createTemplate = (
         {
           label: messages.goToForums.message,
           click: openForums,
+          visible: false,
         },
         {
           label: messages.goToSupportPage.message,

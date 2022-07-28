@@ -22,8 +22,7 @@ export function getCertificateAuthority(): string {
   return config.get('certificateAuthority');
 }
 
-export function getGotOptions(): GotOptions {
-  const certificateAuthority = getCertificateAuthority();
+export function getGotOptions(url: string): GotOptions {
   const proxyUrl = getProxyUrl();
   const agent = proxyUrl
     ? {
@@ -32,11 +31,8 @@ export function getGotOptions(): GotOptions {
       }
     : undefined;
 
-  return {
+  const opts: GotOptions = {
     agent,
-    https: {
-      certificateAuthority,
-    },
     headers: {
       'Cache-Control': 'no-cache',
       'User-Agent': getUserAgent(packageJson.version),
@@ -63,4 +59,13 @@ export function getGotOptions(): GotOptions {
       statusCodes: [413, 429, 503],
     },
   };
+
+  if (url.startsWith('http')) {
+    const targetUrl = new URL(url);
+    if (targetUrl.hostname.endsWith('.signal.org')) {
+      opts.https = { certificateAuthority: getCertificateAuthority() };
+    }
+  }
+
+  return opts;
 }

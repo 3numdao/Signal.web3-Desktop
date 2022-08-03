@@ -1,0 +1,157 @@
+name: Release
+on:
+  push:
+    tags:
+      - "v*.*.*-enum.*"
+
+jobs:
+  create:
+    runs-on: ubuntu-latest
+    steps:
+      - id: release
+        uses: softprops/action-gh-release@v1
+        with:
+          generate_release_notes: false
+      - uses: sarisia/actions-status-discord@v1
+        if: ${{ always() && !success() }}
+        with:
+          webhook: ${{ secrets.DISCORD_ACTION_URL }}
+          title: ${{ github.workflow }} create
+
+  build:
+    needs: create
+
+    strategy:
+      fail-fast: false # let others run to completion
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            release_suffix: ubuntu
+          - os: macos-latest
+            release_suffix: mac
+          - os: windows-latest
+            release_suffix: windows
+
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+
+    steps:
+      - name: Install Apple certificates
+        if: matrix.os == 'macos-latest'
+        env:
+          APP_CERT_BASE64: ${{ secrets.APP_CERT_BASE64 }}
+          INSTALL_CERT_BASE64: ${{ secrets.INSTALL_CERT_BASE64 }}
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          # create variables
+          APP_CERT_PATH=$RUNNER_TEMP/app_cert.p12
+          INSTALL_CERT_PATH=$RUNNER_TEMP/install_cert.p12
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+
+          # import certificate and provisioning profile from secrets
+          echo -n "$APP_CERT_BASE64" | base64 --decode --output $APP_CERT_PATH
+          echo -n "$INSTALL_CERT_BASE64" | base64 --decode --output $INSTALL_CERT_PATH
+
+          # create temporary keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+          # import certificate to keychain
+          security import $APP_CERT_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security import $INSTALL_CERT_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
+
+      - name: Prepare Windows checkout
+        if: matrix.os == 'windows-latest'
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.eol lf
+
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16.13.2'
+      - run: npm install -g yarn@1.22.10
+
+      - name: Cache Desktop node_modules
+        id: cache-desktop-modules
+        uses: actions/cache@v2
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-${{ hashFiles('package.json', 'yarn.lock', 'patches/**') }}
+      - name: Install Desktop node_modules
+        if: steps.cache-desktop-modules.outputs.cache-hit != 'true'
+        run: yarn install --frozen-lockfile
+
+      - run: yarn generate
+        env:
+          TELEMETRY_API_KEY: ${{ secrets.TELEMETRY_API_KEY }}
+      - run: yarn prepare-beta-build
+
+      - name: Run yarn build (non-windows)
+        run: yarn build
+        if: matrix.os != 'windows-latest'
+        env:
+          DISABLE_INSPECT_FUSE: on
+          APPLE_USERNAME: ${{ secrets.APPLE_USERNAME }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+
+      - name: Run yarn build (windows)
+        if: matrix.os == 'windows-latest'
+        env:
+          DISABLE_INSPECT_FUSE: on
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+        run: yarn build
+
+      - run: yarn sign-release
+        env:
+          UPDATES_PRIVATE_KEY: ${{ secrets.UPDATES_PRIVATE_KEY }}
+
+      - name: Upload binaries for deployment
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          cd deploy
+          yarn install
+          yarn upload
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: manifests
+          path: release/latest*.yml
+
+      - uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            release/*.dmg
+            release/*.deb
+            release/*.exe
+
+      - name: Clean up keychain and provisioning profile
+        if: ${{ always() &&  matrix.os == 'macos-latest' }}
+        run: security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
+
+      - uses: sarisia/actions-status-discord@v1
+        if: ${{ always() && !success() }}
+        with:
+          webhook: ${{ secrets.DISCORD_ACTION_URL }}
+          title: ${{ runner.os }} ${{ github.workflow }} build
+
+  announce:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - id: release
+        uses: softprops/action-gh-release@v1
+
+      - uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          nodetail: true
+          title: Released ${{ steps.release.outputs.url }}

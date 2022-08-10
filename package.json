@@ -4,7 +4,7 @@
   "description": "Private messaging from your desktop",
   "desktopName": "signal.web3.desktop",
   "repository": "https://github.com/enumdao/Signal.web3-Desktop.git",
-  "version": "5.54.0-enum.1",
+  "version": "5.54.0-enum.2",
   "license": "AGPL-3.0-only",
   "author": {
     "name": "ΞNUM DAO",

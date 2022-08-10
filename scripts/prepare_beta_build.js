@@ -24,27 +24,27 @@ console.log('prepare_beta_build: updating package.json');
 // -------
 
 const NAME_PATH = 'name';
-const PRODUCTION_NAME = 'signal-desktop';
-const BETA_NAME = 'signal-desktop-beta';
+const PRODUCTION_NAME = 'signal.web3-desktop';
+const BETA_NAME = 'signal.web3-desktop-beta';
 
 const PRODUCT_NAME_PATH = 'productName';
-const PRODUCTION_PRODUCT_NAME = 'Signal';
-const BETA_PRODUCT_NAME = 'Signal Beta';
+const PRODUCTION_PRODUCT_NAME = 'Signal.web3';
+const BETA_PRODUCT_NAME = 'Signal.web3 Beta';
 
 const APP_ID_PATH = 'build.appId';
-const PRODUCTION_APP_ID = 'org.whispersystems.signal-desktop';
-const BETA_APP_ID = 'org.whispersystems.signal-desktop-beta';
+const PRODUCTION_APP_ID = 'wtf.enum.signal-web3-desktop';
+const BETA_APP_ID = 'wtf.enum.signal-web3-desktop-beta';
 
 const STARTUP_WM_CLASS_PATH = 'build.linux.desktop.StartupWMClass';
-const PRODUCTION_STARTUP_WM_CLASS = 'Signal';
-const BETA_STARTUP_WM_CLASS = 'Signal Beta';
+const PRODUCTION_STARTUP_WM_CLASS = 'Signal.web3';
+const BETA_STARTUP_WM_CLASS = 'Signal.web3 Beta';
 
 const DESKTOP_NAME_PATH = 'desktopName';
 
 // Note: we're avoiding dashes in our .desktop name due to xdg-settings behavior
 //   https://github.com/signalapp/Signal-Desktop/issues/3602
-const PRODUCTION_DESKTOP_NAME = 'signal.desktop';
-const BETA_DESKTOP_NAME = 'signalbeta.desktop';
+const PRODUCTION_DESKTOP_NAME = 'signal.web3.desktop';
+const BETA_DESKTOP_NAME = 'signal.web3beta.desktop';
 
 // -------
 

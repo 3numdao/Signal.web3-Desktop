@@ -15,8 +15,8 @@
     "2": "https://cdn2-staging.signal.org"
   },
   "contentProxyUrl": "http://contentproxy.signal.org:443",
-  "updatesUrl": "https://updates2.signal.org/desktop",
-  "updatesPublicKey": "05fd7dd3de7149dc0a127909fee7de0f7620ddd0de061b37a2c303e37de802a401",
+  "updatesUrl": "https://releases.enumdao.workers.dev/desktop",
+  "updatesPublicKey": "05e73ca58eae67d21704235912e3f3da2e7fac4972db8b971052f53698ea72da14",
   "sfuUrl": "https://sfu.voip.signal.org/",
   "updatesEnabled": false,
   "enableCI": false,

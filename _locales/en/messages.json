@@ -2366,7 +2366,7 @@
     "description": "Label for header to go to stories view"
   },
   "contactSearchPlaceholder": {
-    "message": "Search by name or phone number",
+    "message": "Search contact, web3 name, or phone #",
     "description": "Placeholder to use when searching for contacts in the composer"
   },
   "noContactsFound": {

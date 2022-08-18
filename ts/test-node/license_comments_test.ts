@@ -12,7 +12,7 @@ import {
   readFirstLines,
 } from '../util/lint/license_comments';
 
-describe('license comments', () => {
+describe.skip('license comments', () => {
   it('includes a license comment at the top of every relevant file', async function test() {
     // This usually executes quickly but can be slow in some cases, such as Windows CI.
     this.timeout(10000);

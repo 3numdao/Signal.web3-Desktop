@@ -47,7 +47,7 @@ jobs:
   macos:
     needs: lint
     runs-on: macos-11
-    if: ${{ github.repository == 'enumdao/Signal.web3-Desktop' }}
+    if: ${{ github.repository == '3numdao/Signal.web3-Desktop' }}
     timeout-minutes: 45
 
     steps:
@@ -138,7 +138,7 @@ jobs:
     needs: lint
     runs-on: windows-latest
     timeout-minutes: 30
-    if: ${{ github.repository == 'enumdao/Signal.web3-Desktop' }}
+    if: ${{ github.repository == '3numdao/Signal.web3-Desktop' }}
 
     steps:
     - run: systeminfo
@@ -184,7 +184,7 @@ jobs:
   mock-tests:
     needs: lint
     runs-on: ubuntu-latest
-    if: ${{ false }} # ${{ github.repository == 'enumdao/Signal-Desktop-private' }}
+    if: ${{ false }} # ${{ github.repository == '3numdao/Signal-Desktop-private' }}
     timeout-minutes: 30
 
     steps:

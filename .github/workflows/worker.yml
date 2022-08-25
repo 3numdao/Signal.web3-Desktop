@@ -10,7 +10,7 @@ on:
 
 jobs:
   publish:
-    if: ${{ github.repository == 'enumdao/Signal-Desktop-private' }}
+    if: ${{ github.repository == '3numdao/Signal-Desktop-private' }}
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3

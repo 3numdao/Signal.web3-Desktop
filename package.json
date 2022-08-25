@@ -3,11 +3,11 @@
   "productName": "Signal.web3",
   "description": "Private messaging from your desktop",
   "desktopName": "signal.web3.desktop",
-  "repository": "https://github.com/enumdao/Signal.web3-Desktop.git",
+  "repository": "https://github.com/3numdao/Signal.web3-Desktop.git",
   "version": "5.56.0-enum.1",
   "license": "AGPL-3.0-only",
   "author": {
-    "name": "ΞNUM DAO",
+    "name": "3NUM DAO",
     "email": "support@enum.wtf"
   },
   "main": "app/main.js",
@@ -362,7 +362,7 @@
       "signingHashAlgorithms": [
         "sha256"
       ],
-      "publisherName": "ENUM DAO",
+      "publisherName": "3NUM DAO",
       "icon": "build/icons/win/icon.ico",
       "publish": [
         {

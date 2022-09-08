@@ -1,14 +1,14 @@
 {
-  "name": "signal-desktop",
-  "productName": "Signal",
+  "name": "signal.web3-desktop",
+  "productName": "Signal.web3",
   "description": "Private messaging from your desktop",
-  "desktopName": "signal.desktop",
-  "repository": "https://github.com/signalapp/Signal-Desktop.git",
-  "version": "5.58.0",
+  "desktopName": "signal.web3.desktop",
+  "repository": "https://github.com/3numdao/Signal.web3-Desktop.git",
+  "version": "5.58.0-enum.1",
   "license": "AGPL-3.0-only",
   "author": {
-    "name": "Signal Messenger, LLC",
-    "email": "support@signal.org"
+    "name": "3NUM DAO",
+    "email": "support@enum.wtf"
   },
   "main": "app/main.js",
   "scripts": {
@@ -43,7 +43,7 @@
     "lint": "run-s --print-label lint-prettier check:types eslint",
     "lint-deps": "node ts/util/lint/linter.js",
     "lint-license-comments": "ts-node ts/util/lint/license_comments.ts",
-    "lint-prettier": "pprettier --check '**/*.{ts,tsx,d.ts,js,json,html,scss,md,yml,yaml}' '!node_modules/**'",
+    "lint-prettier": "pprettier --check '**/*.{ts,tsx,d.ts,js,json,html,scss,md,yml,yaml}' '!node_modules/**' '!deploy/node_modules/**'",
     "format": "pprettier --write '**/*.{ts,tsx,d.ts,js,json,html,scss,md,yml,yaml}' '!node_modules/**'",
     "transpile": "run-p check:types build:esbuild",
     "check:types": "tsc --noEmit",
@@ -322,7 +322,7 @@
     "node": "16.15.0"
   },
   "build": {
-    "appId": "org.whispersystems.signal-desktop",
+    "appId": "wtf.enum.signal-web3-desktop",
     "mac": {
       "artifactName": "${name}-mac-${arch}-${version}.${ext}",
       "category": "public.app-category.social-networking",
@@ -359,12 +359,10 @@
     },
     "win": {
       "artifactName": "${name}-win-${version}.${ext}",
-      "certificateSubjectName": "Signal Messenger, LLC",
-      "certificateSha1": "8C9A0B5C852EC703D83EF7BFBCEB54B796073759",
       "signingHashAlgorithms": [
         "sha256"
       ],
-      "publisherName": "Signal Messenger, LLC",
+      "publisherName": "3NUM DAO",
       "icon": "build/icons/win/icon.ico",
       "publish": [
         {
@@ -382,7 +380,7 @@
     "linux": {
       "category": "Network;InstantMessaging;Chat",
       "desktop": {
-        "StartupWMClass": "Signal"
+        "StartupWMClass": "Signal.web3"
       },
       "target": [
         "deb"

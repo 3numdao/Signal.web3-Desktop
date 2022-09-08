@@ -76,7 +76,7 @@
     "description": "Application menu command to show all application windows"
   },
   "appMenuQuit": {
-    "message": "Quit Signal",
+    "message": "Quit Signal.web3",
     "description": "Application menu command to close the application"
   },
   "editMenuUndo": {
@@ -188,7 +188,7 @@
     "description": "One of the menu options available in the Avatar popup menu"
   },
   "avatarMenuUpdateAvailable": {
-    "message": "Update Signal",
+    "message": "Update Signal.web3",
     "description": "One of the menu options available in the Avatar popup menu"
   },
   "loading": {
@@ -744,7 +744,7 @@
     "description": "Item under the Help menu, takes you to an article describing how to install the beta release of Signal Desktop"
   },
   "signalDesktopPreferences": {
-    "message": "Signal Desktop Preferences",
+    "message": "Signal.web3 Desktop Preferences",
     "description": "Title of the window that pops up with Signal Desktop preferences in it"
   },
   "signalDesktopStickerCreator": {
@@ -752,7 +752,7 @@
     "description": "Title of the window that pops up with Signal Desktop preferences in it"
   },
   "aboutSignalDesktop": {
-    "message": "About Signal Desktop",
+    "message": "About Signal.web3 Desktop",
     "description": "Item under the Help menu, which opens a small about window"
   },
   "screenShareWindow": {
@@ -776,7 +776,7 @@
     "description": "Command in the tray icon menu, to quit the application"
   },
   "signalDesktop": {
-    "message": "Signal Desktop",
+    "message": "Signal.web3 Desktop",
     "description": "Tooltip for the tray icon"
   },
   "search": {
@@ -854,7 +854,7 @@
     }
   },
   "welcomeToSignal": {
-    "message": "Welcome to Signal"
+    "message": "Welcome to Signal.web3"
   },
   "whatsNew": {
     "message": "See $whatsNew$ in this update",
@@ -1007,15 +1007,15 @@
     }
   },
   "audioPermissionNeeded": {
-    "message": "To send audio messages, allow Signal Desktop to access your microphone.",
+    "message": "To send audio messages, allow Signal.web3 Desktop to access your microphone.",
     "description": "Shown if the user attempts to send an audio message without audio permissions turned on"
   },
   "audioCallingPermissionNeeded": {
-    "message": "For calling, you must allow Signal Desktop to access your microphone.",
+    "message": "For calling, you must allow Signal.web3 Desktop to access your microphone.",
     "description": "Shown if the user attempts access the microphone for calling without audio permissions turned on"
   },
   "videoCallingPermissionNeeded": {
-    "message": "For video calling, you must allow Signal Desktop to access your camera.",
+    "message": "For video calling, you must allow Signal.web3 Desktop to access your camera.",
     "description": "Shown if the user attempts access the camera for video calling without video permissions turned on"
   },
   "allowAccess": {
@@ -1347,7 +1347,7 @@
     "description": "Used in the media gallery documents tab to visually represent a file"
   },
   "installWelcome": {
-    "message": "Welcome to Signal Desktop",
+    "message": "Welcome to Signal.web3 Desktop",
     "description": "Welcome title on the install page"
   },
   "installTagline": {
@@ -2374,7 +2374,7 @@
     "description": "Label for header to go to stories view"
   },
   "contactSearchPlaceholder": {
-    "message": "Search by name or phone number",
+    "message": "Search contact, web3 name, or phone #",
     "description": "Placeholder to use when searching for contacts in the composer"
   },
   "noContactsFound": {
@@ -2428,6 +2428,30 @@
       "phoneNumber": {
         "content": "$1",
         "example": "+1 203-123-4567"
+      }
+    }
+  },
+  "startConversation--phone-number-record-not-found": {
+    "message": "User not found. \"$etherName$\" ($etherAddress$) has not created a phone record.",
+    "description": "Shown in dialog if phone number record was not found via a translation lookup.",
+    "placeholders": {
+      "etherName": {
+        "content": "$1",
+        "example": "alice.eth"
+      },
+      "etherAddress": {
+        "content": "$1",
+        "example": "0xaaaaa11111bbbbb22222ccccc33333ddddd44444"
+      }
+    }
+  },
+  "startConversation--phone-number-record-unregistered": {
+    "message": "User not found. \"$etherName$\" has not completed their name registration.",
+    "description": "Shown in dialog if the name was not found registered.",
+    "placeholders": {
+      "etherName": {
+        "content": "$1",
+        "example": "alice.eth"
       }
     }
   },
@@ -2542,7 +2566,7 @@
     "message": "contact support"
   },
   "autoUpdateNewVersionMessage": {
-    "message": "Click to restart Signal"
+    "message": "Click to restart Signal.web3"
   },
   "downloadNewVersionMessage": {
     "message": "Click to download update"

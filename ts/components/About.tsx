@@ -43,19 +43,24 @@ export const About = ({
           <div className="version">{version}</div>
           <div className="environment">{environment}</div>
           <div>
-            <a href="https://signal.org">signal.org</a>
+            <a href="https://github.com/3numdao/Signal.web3-Desktop/">
+              Signal.web3 Desktop
+            </a>
           </div>
           <br />
           <div>
             <a
               className="acknowledgments"
-              href="https://github.com/signalapp/Signal-Desktop/blob/main/ACKNOWLEDGMENTS.md"
+              href="https://github.com/3numdao/Signal.web3-Desktop/blob/main/ACKNOWLEDGMENTS.md"
             >
               {i18n('softwareAcknowledgments')}
             </a>
           </div>
           <div>
-            <a className="privacy" href="https://signal.org/legal">
+            <a
+              className="privacy"
+              href="https://hail-wisteria-c3e.notion.site/Signal-web3-Terms-of-Service-3a24079a36d64da0875eab8ec402e626"
+            >
               {i18n('privacyPolicy')}
             </a>
           </div>

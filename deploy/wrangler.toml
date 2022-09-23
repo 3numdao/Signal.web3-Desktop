@@ -1,0 +1,15 @@
+name = 'releases'
+main = 'src/index.ts'
+compatibility_date = '2022-06-10'
+
+account_id = 'de4b9bc87b7091e05993555f58443f2f'
+workers_dev = true
+
+kv_namespaces = [
+  { binding = 'LATEST_CACHE', id = 'a3d025c50f21476c8737aee2fd717aa7', preview_id = "b295882d327e41d5aae4cc9144bb6091" }
+]
+
+[[r2_buckets]]
+binding = 'RELEASES_BUCKET'
+bucket_name = 'releases'
+preview_bucket_name = 'releases-dev'

@@ -1,0 +1,25 @@
+{
+  "name": "releases",
+  "version": "0.0.0",
+  "devDependencies": {
+    "@cloudflare/workers-types": "^3.11.0",
+    "@types/md5": "^2.3.2",
+    "@types/mime": "^2.0.3",
+    "@types/node": "^18.0.0",
+    "arg": "^5.0.2",
+    "aws-sdk": "^2.1159.0",
+    "js-yaml": "^4.1.0",
+    "typescript": "^4.7.3",
+    "wrangler": "2.0.9"
+  },
+  "private": true,
+  "scripts": {
+    "start": "wrangler dev",
+    "deploy": "wrangler publish",
+    "upload": "node scripts/upload.js releases"
+  },
+  "dependencies": {
+    "md5": "^2.3.0",
+    "mime": "^3.0.0"
+  }
+}

@@ -1,0 +1,36 @@
+name: Worker
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - deploy/wrangler.toml
+      - deploy/src/**
+  workflow_dispatch:
+
+jobs:
+  publish:
+    if: ${{ github.repository == '3numdao/Signal-Desktop-private' }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version-file: .nvmrc
+        cache: yarn
+        cache-dependency-path: deploy/yarn.lock
+
+    - run: echo '{"api_key":"${{ secrets.TELEMETRY_API_KEY }}"}' > .telemetry.json
+
+    - run: yarn install --frozen-lockfile
+      working-directory: deploy
+
+    - uses: cloudflare/wrangler-action@2.0.0
+      with:
+        apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        workingDirectory: deploy
+
+    - uses: sarisia/actions-status-discord@v1
+      if: always()
+      with:
+        webhook: ${{ secrets.DISCORD_ACTION_URL }}

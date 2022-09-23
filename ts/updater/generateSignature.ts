@@ -3,13 +3,19 @@
 
 /* eslint-disable no-console */
 import { join, resolve } from 'path';
-import { readdir as readdirCallback } from 'fs';
+
+import {
+  readdir as readdirCallback,
+  readFileSync,
+  existsSync,
+  writeFileSync,
+} from 'fs';
 
 import pify from 'pify';
 
 import * as Errors from '../types/errors';
 import { getCliOptions } from './common';
-import { writeSignature } from './signature';
+import { hexToBinary, verifySignature, writeSignature } from './signature';
 import * as packageJson from '../../package.json';
 
 const readdir = pify(readdirCallback);
@@ -32,6 +38,11 @@ const OPTIONS = [
     help: 'Path to the update package (default: the .exe or .zip in ./release)',
   },
   {
+    names: ['verify'],
+    type: 'string',
+    help: 'Verify the signature  for file (usage: <filename>:<version>:<publickey>)',
+  },
+  {
     names: ['version', 'v'],
     type: 'string',
     help: `Version number of this package (default: ${packageJson.version})`,
@@ -42,6 +53,7 @@ const OPTIONS = [
 type OptionsType = {
   private: string;
   update: string;
+  verify: string;
   version: string;
 };
 
@@ -52,6 +64,29 @@ go(cliOptions).catch(error => {
 
 async function go(options: OptionsType) {
   const { private: privateKeyPath, version } = options;
+
+  if (options.verify) {
+    const [fn, v, k] = options.verify.split(':', 3);
+
+    const pub = hexToBinary(k);
+    const sigStr = readFileSync(`${fn}.sig`);
+    const sig = hexToBinary(sigStr.toString());
+
+    const verified = await verifySignature(fn, v, sig, pub);
+    if (verified) {
+      console.log('Verification succeeded');
+      return;
+    }
+
+    throw new Error('Verification failed');
+  }
+
+  if (!existsSync(privateKeyPath)) {
+    const privateKeyEnv = process.env.UPDATES_PRIVATE_KEY;
+    if (privateKeyEnv) {
+      writeFileSync(privateKeyPath, privateKeyEnv);
+    }
+  }
 
   let updatePaths: Array<string>;
   if (options.update) {
@@ -72,8 +107,7 @@ async function go(options: OptionsType) {
   );
 }
 
-const IS_EXE = /\.exe$/;
-const IS_ZIP = /\.zip$/;
+const IS_SIGNABLE = /\.(exe|zip|deb)$/;
 async function findUpdatePaths(): Promise<Array<string>> {
   const releaseDir = resolve('release');
   const files: Array<string> = await readdir(releaseDir);
@@ -84,7 +118,7 @@ async function findUpdatePaths(): Promise<Array<string>> {
     const file = files[i];
     const fullPath = join(releaseDir, file);
 
-    if (IS_EXE.test(file) || IS_ZIP.test(file)) {
+    if (IS_SIGNABLE.test(file)) {
       results.push(fullPath);
     }
   }

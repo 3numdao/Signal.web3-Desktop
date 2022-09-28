@@ -12,7 +12,7 @@ import {
   readFirstLines,
 } from '../util/lint/license_comments';
 
-describe('license comments', () => {
+describe.skip('license comments', () => {
   it('includes a license comment at the top of every relevant file', async function test() {
     await forEachRelevantFile(async file => {
       let firstLine: string;

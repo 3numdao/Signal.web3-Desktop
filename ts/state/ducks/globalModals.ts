@@ -65,6 +65,11 @@ export type UserNotFoundModalStateType =
       phoneNumber: string;
     }
   | {
+      type: 'phoneNumberRecord';
+      etherName: string;
+      etherAddress: string | undefined;
+    }
+  | {
       type: 'username';
       username: string;
     };

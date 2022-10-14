@@ -4,6 +4,7 @@
 const esbuild = require('esbuild');
 const path = require('path');
 const glob = require('glob');
+const { writeFileSync, existsSync } = require('fs');
 
 const ROOT_DIR = path.join(__dirname, '..');
 
@@ -61,6 +62,14 @@ const bundleDefaults = {
     './preload_test',
   ],
 };
+
+// Ensure a telemetry API key is provided
+if (!existsSync('.telemetry.json')) {
+  writeFileSync(
+    '.telemetry.json',
+    JSON.stringify({ api_key: process.env.TELEMETRY_API_KEY || 'fake' })
+  );
+}
 
 // App, tests, and scripts
 esbuild.build({

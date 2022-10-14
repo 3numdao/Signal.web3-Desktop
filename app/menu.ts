@@ -125,12 +125,13 @@ export const createTemplate = (
           role: 'togglefullscreen',
           label: i18n('viewMenuToggleFullScreen'),
         },
-        {
-          type: 'separator',
-        },
+        // {
+        //   type: 'separator',
+        // },
         {
           label: i18n('debugLog'),
           click: showDebugLog,
+          visible: false,
         },
         ...(devTools
           ? [
@@ -178,6 +179,7 @@ export const createTemplate = (
         {
           label: i18n('contactUs'),
           click: openContactUs,
+          visible: false,
         },
         {
           label: i18n('goToReleaseNotes'),
@@ -186,6 +188,7 @@ export const createTemplate = (
         {
           label: i18n('goToForums'),
           click: openForums,
+          visible: false,
         },
         {
           label: i18n('goToSupportPage'),

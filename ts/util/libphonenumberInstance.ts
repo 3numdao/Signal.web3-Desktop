@@ -3,6 +3,7 @@
 
 import libphonenumber from 'google-libphonenumber';
 import type { PhoneNumber } from 'google-libphonenumber';
+import { canTranslateNameToPhoneNumber } from './chainHelper';
 
 const instance = libphonenumber.PhoneNumberUtil.getInstance();
 const { PhoneNumberFormat } = libphonenumber;
@@ -20,15 +21,29 @@ export function parseAndFormatPhoneNumber(
   regionCode: string | undefined,
   format = PhoneNumberFormat.E164
 ): ParsedE164Type | undefined {
-  let result: PhoneNumber;
+  let result: PhoneNumber | undefined;
   try {
     result = instance.parse(str, regionCode);
   } catch (err) {
+    /* empty */
+  }
+
+  const isValid = result ? instance.isValidNumber(result) : false;
+
+  if (!isValid && canTranslateNameToPhoneNumber(str)) {
+    return {
+      isValid: true,
+      userInput: str,
+      e164: str,
+    };
+  }
+
+  if (!result) {
     return undefined;
   }
 
   return {
-    isValid: instance.isValidNumber(result),
+    isValid,
     userInput: str,
     e164: instance.format(result, format),
   };

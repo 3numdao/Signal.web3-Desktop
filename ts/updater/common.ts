@@ -522,7 +522,7 @@ export abstract class Updater {
 
       this.logger.info(`downloadUpdate: Downloading signature ${signatureUrl}`);
       const signature = Buffer.from(
-        await got(signatureUrl, getGotOptions()).text(),
+        await got(signatureUrl, getGotOptions(signatureUrl)).text(),
         'hex'
       );
 
@@ -534,7 +534,10 @@ export abstract class Updater {
           this.logger.info(
             `downloadUpdate: Downloading blockmap ${blockMapUrl}`
           );
-          const blockMap = await got(blockMapUrl, getGotOptions()).buffer();
+          const blockMap = await got(
+            blockMapUrl,
+            getGotOptions(blockMapUrl)
+          ).buffer();
           await writeFile(tempBlockMapPath, blockMap);
         } catch (error) {
           this.logger.warn(
@@ -671,7 +674,10 @@ export abstract class Updater {
     targetUpdatePath: string,
     updateOnProgress = false
   ): Promise<void> {
-    const downloadStream = got.stream(updateFileUrl, getGotOptions());
+    const downloadStream = got.stream(
+      updateFileUrl,
+      getGotOptions(updateFileUrl)
+    );
     const writeStream = createWriteStream(targetUpdatePath);
 
     await new Promise<void>((resolve, reject) => {
@@ -850,7 +856,7 @@ export function parseYaml(yaml: string): JSONUpdateSchema {
 
 async function getUpdateYaml(): Promise<string> {
   const targetUrl = getUpdateCheckUrl();
-  const body = await got(targetUrl, getGotOptions()).text();
+  const body = await got(targetUrl, getGotOptions(targetUrl)).text();
 
   if (!body) {
     throw new Error('Got unexpected response back from update check');

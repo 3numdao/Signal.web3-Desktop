@@ -1139,10 +1139,11 @@ function openReleaseNotes() {
 }
 
 function openSupportPage() {
-  // If we omit the language, the site will detect the language and redirect
-  drop(
-    shell.openExternal('https://support.signal.org/hc/sections/360001602812')
-  );
+  shell
+    .openExternal(
+      'https://hail-wisteria-c3e.notion.site/Signal-web3-Alpha-Setup-Support-481b7dad3eae4f76a4e5a2d05815c1e6'
+    )
+    .catch(err => console.error('Unable to open support page:', err));
 }
 
 function openForums() {

@@ -62,8 +62,8 @@ const getExpectedViewMenu = (): MenuItemConstructorOptions => ({
     { label: 'Zoom Out', role: 'zoomOut' },
     { type: 'separator' },
     { label: 'Toggle Full Screen', role: 'togglefullscreen' },
-    { type: 'separator' },
-    { label: 'Debug Log', click: showDebugLog },
+    // { type: 'separator' },
+    { label: 'Debug Log', click: showDebugLog, visible: false },
     { type: 'separator' },
     { label: 'Toggle Developer Tools', role: 'toggleDevTools' },
     { label: 'Force Update', click: forceUpdate },
@@ -82,15 +82,15 @@ const getExpectedHelpMenu = (
       click: showKeyboardShortcuts,
     },
     { type: 'separator' },
-    { label: 'Contact Us', click: openContactUs },
+    { label: 'Contact Us', click: openContactUs, visible: false },
     { label: 'Go to Release Notes', click: openReleaseNotes },
-    { label: 'Go to Forums', click: openForums },
+    { label: 'Go to Forums', click: openForums, visible: false },
     { label: 'Go to Support Page', click: openSupportPage },
     { label: 'Join the Beta', click: openJoinTheBeta },
     ...(includeAbout
       ? ([
           { type: 'separator' },
-          { label: 'About Signal Desktop', click: showAbout },
+          { label: 'About Signal.web3 Desktop', click: showAbout },
         ] as MenuListType)
       : []),
   ],
@@ -98,9 +98,9 @@ const getExpectedHelpMenu = (
 
 const EXPECTED_MACOS: MenuListType = [
   {
-    label: 'Signal Desktop',
+    label: 'Signal.web3 Desktop',
     submenu: [
-      { label: 'About Signal Desktop', click: showAbout },
+      { label: 'About Signal.web3 Desktop', click: showAbout },
       { type: 'separator' },
       {
         label: 'Preferences…',
@@ -114,7 +114,7 @@ const EXPECTED_MACOS: MenuListType = [
       { label: 'Hide Others', role: 'hideOthers' },
       { label: 'Show All', role: 'unhide' },
       { type: 'separator' },
-      { label: 'Quit Signal', role: 'quit' },
+      { label: 'Quit Signal.web3', role: 'quit' },
     ],
   },
   {
@@ -152,7 +152,7 @@ const EXPECTED_WINDOWS: MenuListType = [
         click: showSettings,
       },
       { type: 'separator' },
-      { label: 'Quit Signal', role: 'quit' },
+      { label: 'Quit Signal.web3', role: 'quit' },
     ],
   },
   getExpectedEditMenu(false),

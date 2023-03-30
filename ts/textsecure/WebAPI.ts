@@ -268,6 +268,15 @@ async function _promiseAjax(
     abortSignal: options.abortSignal,
   };
 
+  if (!socketManager) {
+    const parsedUrl = new URL(url);
+    if (!parsedUrl.hostname.endsWith('.signal.org')) {
+      // FIXME: probably should consider adding the cloudflare worker public key
+      //        to the cert store, but for now, use the local system CA
+      fetchOptions.ca = undefined;
+    }
+  }
+
   if (fetchOptions.body instanceof Uint8Array) {
     // node-fetch doesn't support Uint8Array, only node Buffer
     const contentLength = fetchOptions.body.byteLength;

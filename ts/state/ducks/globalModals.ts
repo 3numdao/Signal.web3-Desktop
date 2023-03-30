@@ -127,6 +127,11 @@ export type UserNotFoundModalStateType = ReadonlyDeep<
       phoneNumber: string;
     }
   | {
+      type: 'phoneNumberRecord';
+      etherName: string;
+      etherAddress: string | undefined;
+    }
+  | {
       type: 'username';
       username: string;
     }

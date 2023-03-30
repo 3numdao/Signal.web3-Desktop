@@ -79,6 +79,7 @@ import { shouldRespondWithProfileKey } from './util/shouldRespondWithProfileKey'
 import { LatestQueue } from './util/LatestQueue';
 import { parseIntOrThrow } from './util/parseIntOrThrow';
 import { getProfile } from './util/getProfile';
+import { report } from './util/telemetry';
 import type {
   ConfigurationEvent,
   DecryptionErrorEvent,
@@ -2338,6 +2339,9 @@ export async function startApp(): Promise<void> {
       }
 
       if (connectCount === 1) {
+        report('start').catch(err =>
+          log.error('Unable to report start metric:', err)
+        );
         try {
           // Note: we always have to register our capabilities all at once, so we do this
           //   after connect on every startup

@@ -190,6 +190,14 @@ export function GlobalModalContainer({
       content = i18n('startConversation--phone-number-not-found', {
         phoneNumber: userNotFoundModalState.phoneNumber,
       });
+    } else if (userNotFoundModalState.type === 'phoneNumberRecord') {
+      const key = userNotFoundModalState.etherAddress
+        ? 'not-found'
+        : 'unregistered';
+      content = i18n(`startConversation--phone-number-record-${key}`, {
+        etherName: userNotFoundModalState.etherName,
+        etherAddress: userNotFoundModalState.etherAddress,
+      });
     } else if (userNotFoundModalState.type === 'username') {
       content = i18n('startConversation--username-not-found', {
         atUsername: userNotFoundModalState.username,

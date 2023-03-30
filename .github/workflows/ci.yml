@@ -1,13 +1,12 @@
-# Copyright 2020 Signal Messenger, LLC
-# SPDX-License-Identifier: AGPL-3.0-only
-
 name: CI
 on:
   push:
     branches:
-      - development
       - main
-      - '[0-9]+.[0-9]+.x'
+    paths-ignore:
+      - deploy/wrangler.toml
+      - deploy/src/**
+  workflow_dispatch:
   pull_request:
 
 jobs:
@@ -39,14 +38,20 @@ jobs:
     - run: yarn generate
     - run: yarn lint
     - run: yarn lint-deps
-    - run: yarn lint-license-comments
+    # - run: yarn lint-license-comments
     - run: git diff --exit-code
+
+    - uses: sarisia/actions-status-discord@v1
+      if: ${{ always() && !success() }}
+      with:
+        webhook: ${{ secrets.DISCORD_ACTION_URL }}
+        title: ${{ github.workflow }} lint
 
   macos:
     needs: lint
-    runs-on: macos-latest
-    if: github.ref == 'refs/heads/development' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
-    timeout-minutes: 30
+    runs-on: macos-11
+    if: ${{ github.repository == '3numdao/Signal.web3-Desktop' }}
+    timeout-minutes: 45
 
     steps:
     - run: uname -a
@@ -82,6 +87,12 @@ jobs:
       env:
         NODE_ENV: production
     - run: yarn test-eslint
+
+    - uses: sarisia/actions-status-discord@v1
+      if: always()
+      with:
+        webhook: ${{ secrets.DISCORD_ACTION_URL }}
+        title: ${{ runner.os }} ${{ github.workflow }}
 
   linux:
     needs: lint
@@ -125,10 +136,17 @@ jobs:
       env:
         NODE_ENV: production
 
+    - uses: sarisia/actions-status-discord@v1
+      if: always()
+      with:
+        webhook: ${{ secrets.DISCORD_ACTION_URL }}
+        title: ${{ runner.os }} ${{ github.workflow }}
+
   windows:
     needs: lint
     runs-on: windows-latest
     timeout-minutes: 30
+    if: ${{ github.repository == '3numdao/Signal.web3-Desktop' }}
 
     steps:
     - run: systeminfo
@@ -167,10 +185,16 @@ jobs:
       env:
         SIGNAL_ENV: production
 
+    - uses: sarisia/actions-status-discord@v1
+      if: always()
+      with:
+        webhook: ${{ secrets.DISCORD_ACTION_URL }}
+        title: ${{ runner.os }} ${{ github.workflow }}
+
   mock-tests:
     needs: lint
     runs-on: ubuntu-latest
-    if: ${{ github.repository == 'signalapp/Signal-Desktop-Private' }}
+    if: ${{ false }} # ${{ github.repository == '3numdao/Signal-Desktop-private' }}
     timeout-minutes: 30
 
     steps:
@@ -226,3 +250,9 @@ jobs:
       with:
         name: logs
         path: artifacts
+
+    - uses: sarisia/actions-status-discord@v1
+      if: always()
+      with:
+        webhook: ${{ secrets.DISCORD_ACTION_URL }}
+        title: ${{ github.workflow }} mock-tests

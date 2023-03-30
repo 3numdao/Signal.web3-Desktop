@@ -2,6 +2,7 @@ components/**
 coverage/**
 dist/**
 release/**
+deploy/scripts/*
 
 # Github workflows
 .github/**

@@ -15,6 +15,11 @@ import { showToast } from './showToast';
 import { strictAssert } from './assert';
 import type { UUIDFetchStateKeyType } from './uuidFetchState';
 import { getUuidsForE164s } from './getUuidsForE164s';
+import type { TranslateResult } from './chainHelper';
+import {
+  canTranslateNameToPhoneNumber,
+  translateNameToPhoneNumber,
+} from './chainHelper';
 
 export type LookupConversationWithoutUuidActionsType = Readonly<{
   lookupConversationWithoutUuid: typeof lookupConversationWithoutUuid;
@@ -70,6 +75,30 @@ export async function lookupConversationWithoutUuid(
   }
 
   try {
+    let translateResult: TranslateResult | undefined;
+    if (
+      options.type === 'e164' &&
+      canTranslateNameToPhoneNumber(options.e164)
+    ) {
+      translateResult = await translateNameToPhoneNumber(options.e164);
+      if (translateResult.error) {
+        // let logic below try to lookup by username since there was no phone record
+        const username = options.e164;
+        // eslint-disable-next-line no-param-reassign
+        options = <LookupConversationWithoutUuidOptionsType>{
+          type: 'username',
+          username,
+        };
+      } else {
+        // eslint-disable-next-line no-param-reassign
+        options = <LookupConversationWithoutUuidOptionsType>{
+          type: 'e164',
+          e164: translateResult.phoneNumber,
+          phoneNumber: translateResult.phoneNumber,
+        };
+      }
+    }
+
     let conversationId: string | undefined;
     if (options.type === 'e164') {
       const serverLookup = await getUuidsForE164s(server, [options.e164]);
@@ -103,14 +132,22 @@ export async function lookupConversationWithoutUuid(
     }
 
     if (!conversationId) {
-      showUserNotFoundModal(
-        options.type === 'username'
-          ? options
-          : {
-              type: 'phoneNumber',
-              phoneNumber: options.phoneNumber,
-            }
-      );
+      if (options.type === 'username') {
+        if (translateResult?.error) {
+          showUserNotFoundModal({
+            type: 'phoneNumberRecord',
+            etherName: options.username,
+            etherAddress: translateResult.address,
+          });
+        } else {
+          showUserNotFoundModal(options);
+        }
+      } else {
+        showUserNotFoundModal({
+          type: 'phoneNumber',
+          phoneNumber: options.phoneNumber,
+        });
+      }
       return undefined;
     }
 

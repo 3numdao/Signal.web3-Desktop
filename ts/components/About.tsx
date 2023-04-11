@@ -59,7 +59,7 @@ export function About({
           <div>
             <a
               className="privacy"
-              href="https://hail-wisteria-c3e.notion.site/Signal-web3-Terms-of-Service-3a24079a36d64da0875eab8ec402e626"
+              href="https://github.com/3numdao/Signal.web3-Desktop/wiki/ToS"
             >
               {i18n('privacyPolicy')}
             </a>

@@ -1140,9 +1140,7 @@ function openReleaseNotes() {
 
 function openSupportPage() {
   shell
-    .openExternal(
-      'https://hail-wisteria-c3e.notion.site/Signal-web3-Alpha-Setup-Support-481b7dad3eae4f76a4e5a2d05815c1e6'
-    )
+    .openExternal('https://github.com/3numdao/Signal.web3-Desktop/wiki')
     .catch(err => console.error('Unable to open support page:', err));
 }
 

@@ -19,7 +19,7 @@ type LookupResult = {
   message?: string;
 };
 
-const ETHER_CACHE_URL = 'https://ethercache.herokuapp.com';
+const ETHER_CACHE_URL = 'https://web3ns.3num.co/api/v1';
 const UPDATE_EXTENSIONS_INTERVAL = durations.HOUR;
 
 let extensions = ['.eth'];
@@ -40,9 +40,8 @@ export async function translateNameToPhoneNumber(
 ): Promise<TranslateResult> {
   const result: TranslateResult = { name };
 
-  const lookupUrl = `${ETHER_CACHE_URL}/lookup`;
+  const lookupUrl = `${ETHER_CACHE_URL}/lookup/${name}`;
   const resp = await got.get(lookupUrl, {
-    searchParams: { name },
     timeout: { request: 10 * durations.SECOND },
     throwHttpErrors: false,
   });
@@ -50,23 +49,33 @@ export async function translateNameToPhoneNumber(
   const contentType = resp.headers['content-type'];
   const contentLen = Number(resp.headers['content-length'] || '');
 
-  let lookupResult: LookupResult;
+  let lookupResult: LookupResult = {};
   if (contentLen > 0 && contentType?.startsWith('application/json')) {
-    lookupResult = JSON.parse(resp.body);
-    result.address = lookupResult.address;
+    try {
+      lookupResult = JSON.parse(resp.body);
+    } catch (err) {
+      log.error('chainHelper.translate failed to parse response:', {
+        err,
+        body: resp.body,
+      });
+      result.error = `invalid contents received from ${lookupUrl}`;
+    }
 
-    const statusClass = Math.round(resp.statusCode / 100);
-    switch (statusClass) {
-      case 2:
-        result.phoneNumber = cleanPhoneNumber(lookupResult.phone);
-        if (!result.phoneNumber) {
-          result.error = 'no phone record found';
-        }
-        break;
-      default:
-        result.error =
-          lookupResult?.message ||
-          `unknown service failure (${resp.statusCode})`;
+    if (!result.error) {
+      result.address = lookupResult.address;
+      const statusClass = Math.round(resp.statusCode / 100);
+      switch (statusClass) {
+        case 2:
+          result.phoneNumber = cleanPhoneNumber(lookupResult.phone);
+          if (!result.phoneNumber) {
+            result.error = 'no phone record found';
+          }
+          break;
+        default:
+          result.error =
+            lookupResult?.message ||
+            `unknown service failure (${resp.statusCode})`;
+      }
     }
   } else {
     lookupResult = {};
